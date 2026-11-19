@@ -65,13 +65,31 @@ class ContractTests(unittest.TestCase):
             p.write_text(json.dumps(obj), encoding="utf-8")
             self.assertIn("EVENT SCHEMA: synthetic example invalid", check(root))
 
-    def test_corrupt_schema_fails_closed(self):
+    def test_schema_without_properties_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))
             p = root / "contracts/events.schema.json"
             p.write_text('{"$schema":"https://json-schema.org/draft/2020-12/schema",'
                          '"type":"not-a-valid-type"}', encoding="utf-8")
+            self.assertIn("CONTRACT: missing properties map", check(root))
+
+    def test_invalid_json_schema_keyword_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            p = root / "contracts/events.schema.json"
+            value = json.loads(p.read_text(encoding="utf-8"))
+            value["type"] = "not-a-json-schema-type"
+            p.write_text(json.dumps(value), encoding="utf-8")
             self.assertIn("CONTRACT: invalid JSON Schema", check(root))
+
+    def test_non_utc_event_timestamp_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            p = root / "examples/event.synthetic.json"
+            value = json.loads(p.read_text(encoding="utf-8"))
+            value["timestamp_utc"] = "2026-11-19T10:00:00+02:00"
+            p.write_text(json.dumps(value), encoding="utf-8")
+            self.assertIn("EVENT SCHEMA: synthetic example invalid", check(root))
 
     def test_private_raw_path_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
