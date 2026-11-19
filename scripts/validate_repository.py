@@ -191,6 +191,13 @@ def validate_schema(root: Path, schema: dict, errors: list[str]) -> None:
     if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
         errors.append("CONTRACT: unsupported JSON Schema dialect")
         return
+    # Validate the schema itself before inspecting nested keywords.
+    # Invalid keyword types must produce a controlled failure, not a traceback.
+    try:
+        Draft202012Validator.check_schema(schema)
+    except SchemaError:
+        errors.append("CONTRACT: invalid JSON Schema")
+        return
     properties = schema.get("properties")
     if not isinstance(properties, dict):
         errors.append("CONTRACT: missing properties map")
@@ -207,7 +214,6 @@ def validate_schema(root: Path, schema: dict, errors: list[str]) -> None:
     if schema.get("additionalProperties") is not False:
         errors.append("CONTRACT: additionalProperties must be false")
     try:
-        Draft202012Validator.check_schema(schema)
         event = load_json(root / "examples/event.synthetic.json", errors,
                           "examples/event.synthetic.json")
         if event:
