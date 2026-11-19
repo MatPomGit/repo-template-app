@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "tests_executed": false,
+  "test_report_path": null,
+  "tested_commit_sha": null,
+  "license_reviewed": false,
+  "privacy_reviewed": false,
+  "dependency_audit_passed": false,
+  "hardware_verified": false,
+  "hardware_report_path": null,
+  "installation_verified": false,
+  "compatibility_documented": false,
+  "publisher_approved": false,
+  "release_artifact_sha256": null
+}

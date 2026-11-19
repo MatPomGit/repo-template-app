@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "com.matpomgit.opticore": "https://github.com/MatPomGit/OptiCore.git#REPLACE_VERIFIED_TAG_OR_COMMIT"
+  }
+}

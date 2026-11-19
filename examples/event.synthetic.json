@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "event_id": "synthetic-001",
+  "session_id": "synthetic-session",
+  "timestamp_utc": "1970-01-01T00:00:00Z",
+  "source": "simulated_example",
+  "event_type": "synthetic_event",
+  "quality": "synthetic",
+  "equipment_id": null,
+  "payload": {
+    "value": 0,
+    "units": "arbitrary"
+  }
+}

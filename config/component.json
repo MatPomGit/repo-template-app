@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "template_version": "1.0.0",
+  "type": "app",
+  "component_id": "REPLACE_APP_ID",
+  "display_name": "REPLACE_APP_TITLE",
+  "version": "0.1.0",
+  "release_status": "scaffold",
+  "owner": "REPLACE_OWNER",
+  "license_spdx": "UNDECIDED",
+  "platforms": [],
+  "runtime": "REPLACE_RUNTIME",
+  "interface_types": [],
+  "source_paths": [
+    "src"
+  ],
+  "export_contract": "contracts/events.schema.json",
+  "equipment_refs": [],
+  "hardware_required": false,
+  "data_classification": "unassessed",
+  "network_egress": "unassessed",
+  "repository_url": "REPLACE_REPOSITORY_URL",
+  "documentation_url": "REPLACE_DOCS_URL",
+  "dependency_lockfiles": [],
+  "consumers": [],
+  "related_msc_repositories": []
+}
