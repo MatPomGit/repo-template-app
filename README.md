@@ -1,6 +1,7 @@
 # REPLACE_APP_TITLE
 
-**Rodzaj:** `app-*` (nie `msc-*`) · **Etap:** scaffold · **Status pomiarowy:** NOT_VERIFIED.
+**Rodzaj:** `app-*` (nie `msc-*`) · **Etap:** scaffold · **Status pomiarowy:** NOT_VERIFIED.  
+**Autor podstawowy:** Mateusz Pomianek; współautorzy opcjonalnie po potwierdzeniu wkładu.
 
 ## Funkcja i odbiorcy
 
@@ -23,3 +24,7 @@ python -m unittest discover -s tests -v
 ```
 
 Rozpocznij od [TEMPLATE_SETUP.md](TEMPLATE_SETUP.md). Strona Pages jest opcjonalna i nie jest bazą danych.
+
+## Audyt wzorca i CI
+
+Zobacz [niezależny audyt z 2026-11-19](reviews/2026-11-19-template-audit.md) i plan napraw P0–P2. Repozytoria publiczne mogą używać bezpiecznych GitHub-hosted runners do podstawowych testów; sam szablon nie ma jeszcze workflow CI.
