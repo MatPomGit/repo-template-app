@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from datetime import datetime
 import re
 import subprocess
 import sys
@@ -47,6 +48,7 @@ REQUIRED = (
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+UTC_RFC3339 = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)$")
 BAD_SEGMENTS = {"secrets", "credentials", "participants", "raw", "private", "processed-private"}
 IGNORED_DIRS = {".git", ".venv", ".venv-ci", "venv", "__pycache__", "node_modules", "dist", "build", "site", "outputs"}
 TEXT_SUFFIXES = {".md", ".py", ".json", ".yaml", ".yml", ".cff", ".toml", ".txt", ".ini", ".cfg", ".sh", ".ps1", ".xml"}
@@ -189,8 +191,21 @@ def validate_schema(root: Path, schema: dict, errors: list[str]) -> None:
     if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
         errors.append("CONTRACT: unsupported JSON Schema dialect")
         return
-    if schema.get("properties", {}).get("schema_version", {}).get("const") != 1:
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        errors.append("CONTRACT: missing properties map")
+        return
+    if properties.get("schema_version", {}).get("const") != 1:
         errors.append("CONTRACT: event schema_version must be 1")
+    mandatory = {"schema_version", "event_id", "session_id", "timestamp_utc",
+                 "source", "event_type", "quality", "payload"}
+    declared = schema.get("required")
+    if not isinstance(declared, list) or not mandatory.issubset(set(
+        item for item in declared if isinstance(item, str)
+    )):
+        errors.append("CONTRACT: required event fields missing")
+    if schema.get("additionalProperties") is not False:
+        errors.append("CONTRACT: additionalProperties must be false")
     try:
         Draft202012Validator.check_schema(schema)
         event = load_json(root / "examples/event.synthetic.json", errors,
@@ -200,6 +215,18 @@ def validate_schema(root: Path, schema: dict, errors: list[str]) -> None:
             problems = list(validator.iter_errors(event))
             if problems:
                 errors.append("EVENT SCHEMA: synthetic example invalid")
+            # JSON Schema's format checker may silently skip date-time without
+            # optional format dependencies. Enforce UTC/RFC3339 independently.
+            timestamp = event.get("timestamp_utc")
+            if not isinstance(timestamp, str) or not UTC_RFC3339.fullmatch(timestamp):
+                errors.append("EVENT SCHEMA: synthetic example invalid")
+            else:
+                try:
+                    parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                    if parsed.utcoffset().total_seconds() != 0:
+                        errors.append("EVENT SCHEMA: synthetic example invalid")
+                except (ValueError, AttributeError, OverflowError):
+                    errors.append("EVENT SCHEMA: synthetic example invalid")
             if event.get("quality") != "synthetic":
                 errors.append("EVENT QUALITY: example must remain synthetic")
     except SchemaError:
