@@ -77,3 +77,25 @@
 5. Sprawdzić działanie wymaganego CI/review dla PR oraz odtworzenie procesu instalacji.
 
 **Zakres obecnego PR:** zapis audytu i planu napraw, spójna polityka autorstwa, dopuszczenie GitHub-hosted runners oraz korekta metadanych wzorcowych. **Nie wdraża:** CI, release gate, inicjalizatora, skanów bezpieczeństwa, przykładów aplikacji, zmian rulesetów lub publikacji. Wszystkie checkboxy pozostają otwarte.
+
+---
+
+## Aktualizacja wdrożeniowa — PR #2 (19.11.2026)
+
+Poniższy status dotyczy zmian w gałęzi PR, nie ich scalenia do main ani niezależnego zatwierdzenia wydania. Pierwotny audyt pozostaje historycznym zapisem ustaleń.
+
+| Ustalenie | Status po PR #2 | Zakres i ograniczenia |
+| --- | --- | --- |
+| A01 | Częściowo wdrożone | Dodano GitHub-hosted CI dla scaffold i testów; wymagane status checks/review w ruleset main nie zostały skonfigurowane. |
+| A02 | Wdrożono kontrole statyczne | JSON Schema Draft 2020-12, przykład syntetyczny, dodatkowe sprawdzenie RFC 3339/UTC, reguły wymaganych pól i testy negatywne. To nie jest test runtime aplikacji. |
+| A03 | Częściowo wdrożone | SHA HEAD, raport, obliczenie SHA-256 rzeczywistego artefaktu, czystość śledzonych plików; bez weryfikacji podpisów, tożsamości recenzenta ani pochodzenia raportu z zaufanego systemu. |
+| A04 | Częściowo wdrożone | Placeholder licencji blokuje release; wprowadzono kontrolę wybranych wzorców SPDX/tekstu, sygnatur sekretów i zakazanych ścieżek. Nie zastępuje to audytu PII, pełnego skanera sekretów i przeglądu prawnego. |
+| A05 | Częściowo wdrożone | Weryfikacja YAML, autora i zgodności PROJECT_STATE.yaml/JSON dla kluczowych pól; bez kompleksowego schematu wszystkich statusów. |
+| A06 | Wdrożone wcześniej | Autor podstawowy Mateusz Pomianek w CITATION.cff i dokumentacji; sprawdzany przy walidacji. |
+| A07–A11 | Otwarte | Inicjalizator, ruleset, działający przykład aplikacji, migracje i profilowane kontrakty wymagają osobnej implementacji. |
+
+### Weryfikacja zmian
+
+Workflow .github/workflows/quality.yml uruchamia kontrolę scaffold i testy jednostkowe/negatywne na izolowanym GitHub-hosted runner. Bramka release nie jest uruchamiana automatycznie na niezaufanych PR, a domyślny scaffold nadal blokuje wydanie. Do release potrzebne są rzeczywiste dane testowe i artefakt oraz nieśledzony plik dowodowy; demonstracyjne testy w repo są syntetyczne.
+
+Automatyczna walidacja nie poświadcza metodologii, zgodności etycznej ani faktycznego działania urządzenia. Przed scaleniem wymagane są PASS dla bieżącego SHA i recenzja diffu. Przed aktywacją obowiązkowych statusów w ruleset należy zweryfikować stabilność workflow.
