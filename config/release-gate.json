@@ -11,5 +11,6 @@
   "installation_verified": false,
   "compatibility_documented": false,
   "publisher_approved": false,
-  "release_artifact_sha256": null
+  "release_artifact_sha256": null,
+  "release_artifact_path": null
 }
