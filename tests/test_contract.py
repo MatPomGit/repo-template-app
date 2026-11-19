@@ -70,7 +70,7 @@ class ContractTests(unittest.TestCase):
             root = self.fixture(Path(tmp))
             p = root / "contracts/events.schema.json"
             p.write_text('{"$schema":"https://json-schema.org/draft/2020-12/schema",'
-                         '"type":"not-a-valid-type"}', encoding="utf-8")
+                         '"type":"object"}', encoding="utf-8")
             self.assertIn("CONTRACT: missing properties map", check(root))
 
     def test_invalid_json_schema_keyword_fails_closed(self):
