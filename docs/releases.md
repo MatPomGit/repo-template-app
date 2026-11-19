@@ -1,6 +1,6 @@
 # Wydania i dowody dopuszczenia
 
-Samo uzupełnienie `config/release-gate.json` wartościami `true` **nie dowodzi wykonania testów**. Wzorzec pozostaje zablokowany w stanie scaffold. Podstawowy CI **nie publikuje** paczek ani nie wykonuje `--phase release`.
+Samo uzupełnienie `config/release-gate.json` wartościami `true` **nie dowodzi wykonania testów**. Wzorzec pozostaje zablokowany w stanie scaffold. Kontrola struktury nie jest zezwoleniem na publikację paczek.
 
 Po wdrożeniu faktycznej aplikacji, testów oraz zatwierdzeniu wydania:
 
