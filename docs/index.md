@@ -3,7 +3,6 @@
 To dokumentacja techniczna komponentu, nie opis niezarejestrowanego badania.
 Nie prezentuj stanu `scaffold` jako rozwiązania gotowego do badań.
 
-- [Cykl pracy agentów](agent-workflow.md)
 - [Instalacja](installation.md)
 - [Kontrakty](contracts.md)
 - [Kompatybilność](compatibility.md)

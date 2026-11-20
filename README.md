@@ -28,8 +28,6 @@ python src/example_cli.py --output outputs/example.synthetic.json
 
 Konfiguracja metadanych: `python scripts/init_app.py --help`. Wzorcowe CLI `src/example_cli.py` emituje wyłącznie zdarzenie syntetyczne; nie jest aplikacją produkcyjną ani adapterem sprzętu.
 
-Agenci pracują zgodnie z [AGENTS.md](AGENTS.md), [procedurą](docs/agent-workflow.md) i lokalną instrukcją wybranego profilu. Sam dokument nie nadaje dostępu do produkcji.
-
 Rozpocznij od [TEMPLATE_SETUP.md](TEMPLATE_SETUP.md). Strona Pages jest opcjonalna i nie jest bazą danych.
 
 ## Audyt wzorca i CI

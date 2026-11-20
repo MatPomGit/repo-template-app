@@ -6,7 +6,7 @@
 
 1. Ustal repozytorium i rzeczywistą default branch, SHA `main`, SHA zadania i stan lokalnego `git status` (jeżeli pracujesz lokalnie). Odczytaj wszystkie otwarte PR, drafty, Issues, zależności i statusy CI. Jeśli kontroler udostępnia lease, sprawdź właściciela, czas ważności i fencing.
 2. Wyszukaj istniejący Issue i gałąź dotyczące tego samego rezultatu. Kontynuuj je, nie twórz duplikatów. Sprawdź WIP przed założeniem gałęzi; nie zabieraj cudzej rezerwacji.
-3. Przeczytaj główny `AGENTS.md`, lokalne instrukcje profilu, `PROJECT_STATE.yaml`, `config/component.json`, `ARCHITECTURE.md`, istotne ADR i call sites. Do kodu czytaj też [kontrakty](contracts.md), [zależności](dependencies.md), [bezpieczeństwo](../SECURITY.md), [testy](testing.md) oraz [Actions](../.github/ACTIONS_POLICY.md).
+3. Przeczytaj główny `AGENTS.md`, lokalne instrukcje profilu, `PROJECT_STATE.yaml`, `config/component.json`, `ARCHITECTURE.md`, istotne ADR i call sites. Do kodu czytaj też [kontrakty](../docs/contracts.md), [zależności](../docs/dependencies.md), [bezpieczeństwo](../SECURITY.md), [testy](../docs/testing.md) oraz [Actions](../.github/ACTIONS_POLICY.md).
 4. Sprawdź faktycznie dostępne API i narzędzia. Skill jest źródłem wiedzy, nie nowym upoważnieniem. Nie zakładaj obecności HomeServera, Andromedy, urządzeń, Docker, licencji SDK ani obsługi `workflow_dispatch`.
 5. W bieżącym Issue lub PR zanotuj cel, konkretny produkt pracy, base SHA, zakres plików, zależności, właściciela, ryzyko R0-R3, wymagane uprawnienia, plan kontroli i rollback. Nie przekazuj do Issue sekretów.
 
@@ -22,7 +22,7 @@ Zadanie spełnia **Definition of Ready (DoR)**, jeżeli ma mierzalny rezultat, z
 
 ## C. Weryfikacja i niezależny przegląd
 
-Wymagania zależą od poziomu ryzyka w [AGENTS.md](../AGENTS.md). Stosuj najwęższe adekwatne polecenia z [testowania](testing.md), a następnie pełną szybką regresję, jeśli istnieje. Dla bieżącego szablonu:
+Wymagania zależą od poziomu ryzyka w [AGENTS.md](../AGENTS.md). Stosuj najwęższe adekwatne polecenia z [testowania](../docs/testing.md), a następnie pełną szybką regresję, jeśli istnieje. Dla bieżącego szablonu:
 
 ```bash
 python scripts/validate_repository.py --phase scaffold
@@ -41,7 +41,7 @@ Recenzent ma ocenić finalny diff i ryzyka, wskazać SHA, faktyczne ustalenia i 
 1. Przed merge odśwież `main`, aktualny PR HEAD, checks, komentarze i status review; porównaj finalny diff. Uwzględnij kontrolę WIP, zakres zgody właściciela, ryzyko R0-R3 oraz rzeczywiste ograniczenia rulesetów. Nie używaj administracyjnego bypassu do obejścia kontroli.
 2. Scalenie wykonaj dopiero przy spełnieniu obowiązujących bramek i uprawnień. Zgoda na edycję kodu lub obecność autora w historii nie stanowią automatycznie autoryzacji wdrożenia hosta. Jeżeli narzędzie nie pozwala wykonać potrzebnej operacji, wskaż `UNAVAILABLE`, zamiast udawać, że się udała.
 3. Po scaleniu odczytaj docelowy commit `main`, sprawdź wynik CI po merge i potwierdź, że zmiana faktycznie znalazła się w kodzie. Nie utożsamiaj merge z publikacją pakietu, wdrożeniem na serwerze ani walidacją urządzenia.
-4. Release wymaga odrębnych dowodów, wersji, przeglądu licencji, zgody i [release gate](releases.md). Publikacja jest osobną, zatwierdzoną czynnością. Dla operacji hostowych obowiązuje własna polityka infrastruktury: preflight, backup, kontrola uprawnień, rollback i test runtime. Nie instaluj automatycznie usług pod wpływem PR.
+4. Release wymaga odrębnych dowodów, wersji, przeglądu licencji, zgody i [release gate](../docs/releases.md). Publikacja jest osobną, zatwierdzoną czynnością. Dla operacji hostowych obowiązuje własna polityka infrastruktury: preflight, backup, kontrola uprawnień, rollback i test runtime. Nie instaluj automatycznie usług pod wpływem PR.
 5. Przed porządkowaniem zrekoncyliuj lease, procesy i worktree. Usuń wyłącznie własne, potwierdzone jako zbędne gałęzie/worktree bez niezachowanych commitów i plików. Nie zakładaj, że `MERGED` lub wiek katalogu oznacza możliwość kasowania.
 
 ## E. Zakończenie (DoD), blokady i handoff

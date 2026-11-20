@@ -36,7 +36,7 @@ REQUIRED = (
     ".gitattributes", ".github/ACTIONS_POLICY.md",
     ".github/PULL_REQUEST_TEMPLATE.md", ".github/ISSUE_TEMPLATE/work-item.md",
     ".github/workflows/quality.yml", "requirements-ci.txt",
-    "docs/agent-workflow.md", "tests/test_agent_policy.py",
+    ".github/AGENT_WORKFLOW.md", "tests/test_agent_policy.py",
     "profiles/android/AGENTS.md", "profiles/desktop/AGENTS.md",
     "profiles/sensor/AGENTS.md", "profiles/unity/AGENTS.md",
     "profiles/web/AGENTS.md",

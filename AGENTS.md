@@ -1,6 +1,6 @@
 # Kontrakt agentów dla repozytoriów `app-*`
 
-**Zakres:** cały szablon i utworzone z niego repozytoria, chyba że ich właściciel zatwierdził nowszą politykę. Ten dokument ustala zasady wykonania, a nie gotowość aplikacji ani dodatkowe uprawnienia. Szczegółowa procedura: [cykl pracy agenta](docs/agent-workflow.md).
+**Zakres:** cały szablon i utworzone z niego repozytoria, chyba że ich właściciel zatwierdził nowszą politykę. Ten dokument ustala zasady wykonania, a nie gotowość aplikacji ani dodatkowe uprawnienia. Szczegółowa procedura: [cykl pracy agenta](.github/AGENT_WORKFLOW.md).
 
 ## 1. Hierarchia, zakres i źródła prawdy
 
@@ -55,7 +55,7 @@ Wydanie musi przejść [release gate](docs/releases.md), kontrolę licencji, zal
 
 ## 6. Procedura i zakończenie
 
-Dla pełnych kroków użyj [docs/agent-workflow.md](docs/agent-workflow.md). Przed zapisem czytaj kod, testy i ADR, szukaj istniejących narzędzi, stosuj KISS/DRY/YAGNI i minimalne odwracalne zmiany. Po zmianie wykonaj odpowiednie kontrole z [docs/testing.md](docs/testing.md), przeczytaj finalny diff, sprawdź aktualny SHA i wymagane bramki. Brak polecenia testowego zgłaszaj jako `NOT_RUN`; nie wymyślaj go.
+Dla pełnych kroków użyj [.github/AGENT_WORKFLOW.md](.github/AGENT_WORKFLOW.md). Przed zapisem czytaj kod, testy i ADR, szukaj istniejących narzędzi, stosuj KISS/DRY/YAGNI i minimalne odwracalne zmiany. Po zmianie wykonaj odpowiednie kontrole z [docs/testing.md](docs/testing.md), przeczytaj finalny diff, sprawdź aktualny SHA i wymagane bramki. Brak polecenia testowego zgłaszaj jako `NOT_RUN`; nie wymyślaj go.
 
 Po scaleniu sprawdź aktualny `main`, zachowaj raport w Issue/PR oraz zwolnij tylko własne lease i zasoby po weryfikacji. Nigdy nie usuwaj niezmergowanych commitów, nieznanych worktree ani cudzych procesów. Przy blokadzie opisz w istniejącym Issue dokładny warunek wznowienia i wykonaj inne bezpieczne prace.
 
