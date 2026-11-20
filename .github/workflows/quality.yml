@@ -55,7 +55,7 @@ jobs:
                   print("SITE ASSET:", p.relative_to("site").as_posix())
                   if p.suffix == ".html":
                       s = p.read_text(encoding="utf-8")
-                      for match in re.finditer(r"<script\\b[^>]*>[\\s\\S]*?</script>", s, re.I):
+                      for match in re.finditer(r"<script\b[^>]*>[\s\S]*?</script>", s, re.I):
                           print("SITE SCRIPT:", repr(match.group(0)[:400]))
           PY
       - name: Audit rendered public Pages
