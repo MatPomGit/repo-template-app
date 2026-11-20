@@ -5,7 +5,7 @@
 ## 1. Granica publikacji
 
 - Strony źródłowe umieszczaj **wyłącznie w `pages/`**; dokumentacja techniczna, polityki agentów, ADR, logi, konfiguracja i kod pozostają poza witryną w `docs/` i innych katalogach repozytorium.
-- W `mkdocs.yml` wymagane są `docs_dir: pages` i `site_dir: site`. `config/pages-policy.json` określa jawnie dopuszczone pliki źródłowe i zweryfikowane zasoby motywu. Aktualizację listy uzasadnij przeglądem diff.
+- W `mkdocs.yml` wymagane są `docs_dir: pages` i `site_dir: site`. `config/pages-policy.json` określa jawnie dopuszczone pliki źródłowe, hashe SHA-256 statycznych zasobów motywu i zatwierdzone obrazy. Motyw `mkdocs` ma `highlightjs: false`, aby nie ładować kodu z CDN. Aktualizację listy uzasadnij przeglądem diff.
 - Nie używaj w ustawieniach GitHub Pages trybu „Deploy from a branch” wskazującego `main`, root ani `/docs`. Preferuj oddzielnie zatwierdzony workflow publikujący **wyłącznie zbudowany katalog `site/`**, z minimalnymi uprawnieniami i kontrolowanym środowiskiem. Alternatywna gałąź `gh-pages` może zawierać wyłącznie zatwierdzone pliki wynikowe.
 - Repozytorium szablonu **nie zawiera workflow publikacji**. Wynik testów, merge PR ani przygotowanie zawartości `pages/` nie uruchamiają deploymentu. Włączanie Pages i publikacja są osobnymi czynnościami R3 wymagającymi zgody właściciela.
 

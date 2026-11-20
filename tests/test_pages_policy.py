@@ -1,6 +1,7 @@
 """Public Pages cannot include private docs or agent/editorial notes."""
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sys
@@ -173,7 +174,7 @@ class PagesPolicyTests(unittest.TestCase):
             self.assertIn("PAGES BUILD MISSING HTML: index.html",
                           check_built_site(root))
 
-    def test_built_site_does_not_flag_theme_javascript_as_editorial_text(self):
+    def test_built_site_rejects_unapproved_inline_script(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))
             site = root / "site"
@@ -181,7 +182,92 @@ class PagesPolicyTests(unittest.TestCase):
             (site / "index.html").write_text(
                 "<script>const x = 'REPLACE';</script><h1>Aplikacja</h1>",
                 encoding="utf-8")
+            self.assertIn("PAGES BUILD UNAPPROVED INLINE SCRIPT: index.html",
+                          check_built_site(root))
+
+    def test_built_site_rejects_injected_theme_asset(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site/js").mkdir(parents=True)
+            (root / "site/index.html").write_text("<h1>Public</h1>", encoding="utf-8")
+            (root / "site/js/unreviewed.js").write_text("alert(1)", encoding="utf-8")
+            self.assertIn("PAGES BUILD UNEXPECTED FILE: js/unreviewed.js",
+                          check_built_site(root))
+
+    def test_built_site_rejects_tampered_pinned_asset(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site/js").mkdir(parents=True)
+            (root / "site/index.html").write_text("<h1>Public</h1>", encoding="utf-8")
+            (root / "site/js/base.js").write_text("/* different */", encoding="utf-8")
+            self.assertIn("PAGES BUILD THEME HASH MISMATCH: js/base.js",
+                          check_built_site(root))
+
+    def test_built_site_rejects_remote_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            (root / "site/index.html").write_text(
+                '<script src="https://cdn.example.org/script.js"></script>',
+                encoding="utf-8")
+            self.assertIn("PAGES BUILD UNAPPROVED SCRIPT: index.html",
+                          check_built_site(root))
+
+    def test_built_site_accepts_only_reviewed_mkdocs_inline_config(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            (root / "site/index.html").write_text(
+                '<script>\nvar base_url = ".",\nshortcuts = '
+                '{"help": 191, "next": 78, "previous": 80, "search": 83};'
+                '</script><h1>Public</h1>', encoding="utf-8")
             self.assertEqual([], check_built_site(root))
+
+    def test_built_site_rejects_event_handler(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            (root / "site/index.html").write_text(
+                '<button onclick="alert(1)">X</button>', encoding="utf-8")
+            self.assertIn("PAGES BUILD EVENT HANDLER: index.html",
+                          check_built_site(root))
+
+    def test_pages_image_requires_approved_digest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/photo.png").write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND" + b"\x00" * 4)
+            policy_path = root / "config/pages-policy.json"
+            policy = json.loads(policy_path.read_text(encoding="utf-8"))
+            policy["public_files"].append("photo.png")
+            policy_path.write_text(json.dumps(policy), encoding="utf-8")
+            self.assertIn("PAGES IMAGE HASH UNAPPROVED: photo.png", check_pages(root))
+            policy["approved_image_sha256"]["photo.png"] = hashlib.sha256(
+                (root / "pages/photo.png").read_bytes()).hexdigest()
+            policy_path.write_text(json.dumps(policy), encoding="utf-8")
+            self.assertEqual([], check_pages(root))
+
+    def test_png_exif_metadata_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            png = (b"\x89PNG\r\n\x1a\n" +
+                   b"\x00\x00\x00\x04eXIfGPS!" + b"\x00" * 4 +
+                   b"\x00\x00\x00\x00IEND" + b"\x00" * 4)
+            (root / "pages/photo.png").write_bytes(png)
+            policy_path = root / "config/pages-policy.json"
+            policy = json.loads(policy_path.read_text(encoding="utf-8"))
+            policy["public_files"].append("photo.png")
+            policy["approved_image_sha256"]["photo.png"] = hashlib.sha256(png).hexdigest()
+            policy_path.write_text(json.dumps(policy), encoding="utf-8")
+            self.assertIn("PAGES IMAGE METADATA: photo.png", check_pages(root))
+
+    def test_cdn_highlighting_is_disabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            cfg = root / "mkdocs.yml"
+            cfg.write_text(cfg.read_text(encoding="utf-8").replace(
+                "highlightjs: false", "highlightjs: true"), encoding="utf-8")
+            self.assertIn("PAGES CONFIG: reviewed local-only theme required",
+                          check_pages(root))
 
     def test_built_site_minimal_index_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
