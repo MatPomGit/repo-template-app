@@ -15,3 +15,10 @@
 - Wersja początkowa szablonu. Nie jest to wydanie oprogramowania.
 
 - 2026-11-19: dodano bezpieczny CI szablonu, walidację JSON Schema / RFC 3339 i YAML, testy negatywne, kontrolę podejrzanych plików oraz wzmocnioną bramkę wydania z SHA i sumami kontrolnymi. Wydanie aplikacji nadal pozostaje zablokowane do czasu rzeczywistych testów i zatwierdzenia.
+
+### E4.0 — utwardzenie walidacji i weryfikacji PR #5
+
+- Testy PR wykonują dokładne SHA gałęzi HEAD, a nie domyślny syntetyczny merge SHA.
+- W CI budowana i kontrolowana jest wynikowa witryna MkDocs bez publikacji.
+- Rozszerzono filtr poleceń agentowych i aktywnego HTML, walidację tytułu aplikacji oraz regresję negatywną.
+- Ustawienia rulesetu `main` wymagają odrębnej administracyjnej zmiany; automatyczny PASS nie oznacza approval ani merge.

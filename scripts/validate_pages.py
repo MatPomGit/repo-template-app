@@ -30,6 +30,31 @@ BANNED = (
                r"contribute to (?:this|the) (?:project|repository)|"
                r"send (?:a )?pull request)", re.I),
 )
+# Heuristic source checks: publication also needs human review.
+BANNED += (
+    re.compile(
+        r"\b(?:asystenc\w*\s+(?:AI|sztucznej\s+inteligencji)|"
+        r"chatgpt|copilot|agent\w*\s+AI|AI\s+assistant|AI\s+agent)\b"
+        r"\s*[,;:\-]?\s*(?:wykonaj|napisz|zmień|zaktualizuj|dodaj|usuń|"
+        r"wygeneruj|popraw|sprawdź|przepisz|update|write|edit|modify|"
+        r"rewrite|remove|create|generate|fix|ignore)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:instrukcje?|polecenia?)\s+(?:dla\s+)?"
+        r"(?:AI|ChatGPT|Copilota|asystenta|agent\w*)\b|"
+        r"\binstructions?\s+for\s+(?:AI|ChatGPT|Copilot|an?\s+assistant)\b",
+        re.I,
+    ),
+)
+UNSAFE_MARKUP = re.compile(
+    r"<\s*/?\s*(?:script|iframe|object|embed|form|base|meta)\b|"
+    r"\bon[a-z]+\s*=|"
+    r"\b(?:javascript|vbscript)\s*:|"
+    r"\bdata\s*:\s*text/html",
+    re.I,
+)
+
 UNSAFE_PARTS = {"docs", ".github", "secrets", "credentials", "private",
                 "participants", "students", "raw", "internal",
                 "agents.md", "agent_workflow.md", "contributing.md"}
@@ -131,6 +156,8 @@ def check_pages(root: Path = ROOT) -> list[str]:
                 value = path.read_text(encoding="utf-8")
                 if any(regex.search(value) for regex in BANNED):
                     errors.append("PAGES EDITORIAL OR AGENT CONTENT: " + rel)
+                if UNSAFE_MARKUP.search(value):
+                    errors.append("PAGES UNSAFE ACTIVE CONTENT: " + rel)
                 if re.search(r"\.\./|file://|https?://\S*(?:/AGENTS\.md|/\.github/)",
                              value, re.I):
                     errors.append("PAGES INTERNAL REFERENCE: " + rel)
@@ -143,11 +170,102 @@ def check_pages(root: Path = ROOT) -> list[str]:
     return sorted(set(errors))
 
 
+def check_built_site(root: Path = ROOT, site_dir: Path | None = None) -> list[str]:
+    """Inspect rendered output; validation is not publication authorisation."""
+    root = Path(root).resolve()
+    directory = root / "site" if site_dir is None else Path(site_dir)
+    if not directory.is_absolute():
+        directory = root / directory
+    if not directory.is_dir() or directory.is_symlink():
+        return ["PAGES BUILD: missing or symlinked site output"]
+
+    try:
+        policy = json.loads((root / "config/pages-policy.json").read_text(encoding="utf-8"))
+        allowed = policy["public_files"]
+        config = yaml.safe_load((root / "mkdocs.yml").read_text(encoding="utf-8"))
+        if not isinstance(allowed, list) or not all(safe_relative(x) for x in allowed):
+            return ["PAGES BUILD: invalid source allowlist"]
+        directory_urls = config.get("use_directory_urls", True)
+        if type(directory_urls) is not bool:
+            return ["PAGES BUILD: invalid URL configuration"]
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError, yaml.YAMLError, AttributeError):
+        return ["PAGES BUILD: invalid source policy or configuration"]
+
+    expected_html = {"404.html"}  # Standard MkDocs-generated fallback.
+    expected_assets = set()
+    for item in allowed:
+        path = PurePosixPath(item)
+        if path.suffix.lower() == ".md":
+            without_suffix = path.with_suffix("")
+            if without_suffix.name == "index":
+                expected_html.add(str(without_suffix.parent / "index.html"))
+            elif directory_urls:
+                expected_html.add(str(without_suffix / "index.html"))
+            else:
+                expected_html.add(str(without_suffix) + ".html")
+        elif path.suffix.lower() == ".html":
+            expected_html.add(item)
+        else:
+            expected_assets.add(item)
+
+    errors: list[str] = []
+    found_html: set[str] = set()
+    # Only assets from the pinned MkDocs theme or approved sources may appear.
+    theme_dirs = {"css", "js", "img", "fonts", "search"}
+    theme_ext = {".css", ".js", ".png", ".ico", ".svg", ".woff", ".woff2",
+                 ".ttf", ".eot", ".map", ".json", ".gif", ".webp"}
+    generated = {"sitemap.xml", "sitemap.xml.gz", "search/search_index.json"}
+    for file in sorted(directory.rglob("*")):
+        rel = file.relative_to(directory).as_posix()
+        if file.is_symlink():
+            errors.append("PAGES BUILD SYMLINK: " + rel)
+            continue
+        if file.is_dir():
+            continue
+        if not file.is_file():
+            errors.append("PAGES BUILD UNSUPPORTED: " + rel)
+            continue
+        parts = PurePosixPath(rel).parts
+        if any(part.lower() in UNSAFE_PARTS or part.startswith(".") for part in parts):
+            errors.append("PAGES BUILD PRIVATE PATH: " + rel)
+            continue
+        theme_asset = parts[0] in theme_dirs and file.suffix.lower() in theme_ext
+        if rel not in expected_html | expected_assets | generated and not theme_asset:
+            errors.append("PAGES BUILD UNEXPECTED FILE: " + rel)
+            continue
+        if file.suffix.lower() == ".html":
+            if rel not in expected_html:
+                errors.append("PAGES BUILD UNAPPROVED HTML: " + rel)
+                continue
+            found_html.add(rel)
+        if file.suffix.lower() == ".html" or rel == "search/search_index.json":
+            try:
+                if file.stat().st_size > 2_000_000:
+                    errors.append("PAGES BUILD OVERSIZED: " + rel)
+                    continue
+                value = file.read_text(encoding="utf-8")
+                if any(regex.search(value) for regex in BANNED):
+                    errors.append("PAGES BUILD EDITORIAL CONTENT: " + rel)
+                if re.search(r"(?:\.\./docs/|/\.github/|\bAGENTS\.md\b|file://)",
+                             value, re.I):
+                    errors.append("PAGES BUILD INTERNAL REFERENCE: " + rel)
+            except (OSError, UnicodeError):
+                errors.append("PAGES BUILD UNREADABLE: " + rel)
+    for item in expected_html - {"404.html"}:
+        if item not in found_html:
+            errors.append("PAGES BUILD MISSING HTML: " + item)
+    return sorted(set(errors))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--site-dir", type=Path, default=None,
+                        help="also audit rendered site output (no deployment)")
     args = parser.parse_args()
     errors = check_pages(args.root)
+    if args.site_dir is not None:
+        errors.extend(check_built_site(args.root, args.site_dir))
     for error in errors:
         print("ERROR:", error)
     print("FAIL: pages" if errors else "PASS: pages")

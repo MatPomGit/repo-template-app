@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from validate_pages import check_pages
+from validate_pages import check_pages, check_built_site
 
 
 class PagesPolicyTests(unittest.TestCase):
@@ -109,6 +109,78 @@ class PagesPolicyTests(unittest.TestCase):
             root = self.fixture(Path(tmp))
             (root / "pages/index.md").write_text("Funkcja: NOT_RUN", encoding="utf-8")
             self.assertIn("PAGES EDITORIAL OR AGENT CONTENT: index.md", check_pages(root))
+
+    def test_polish_ai_directive_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/index.md").write_text(
+                "Asystencie AI, zaktualizuj ten opis.", encoding="utf-8")
+            self.assertIn("PAGES EDITORIAL OR AGENT CONTENT: index.md",
+                          check_pages(root))
+
+    def test_english_ai_directive_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/index.md").write_text(
+                "AI assistant: rewrite this page.", encoding="utf-8")
+            self.assertIn("PAGES EDITORIAL OR AGENT CONTENT: index.md",
+                          check_pages(root))
+
+    def test_normal_ai_subject_is_not_an_instruction(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/index.md").write_text(
+                "# Wykorzystanie sztucznej inteligencji w diagnostyce\n",
+                encoding="utf-8")
+            self.assertEqual([], check_pages(root))
+
+    def test_active_markup_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            for payload in (
+                "<script>alert(1)</script>", "<img src=x onerror=alert(1)>",
+                "[X](javascript:alert(1))",
+            ):
+                with self.subTest(payload=payload):
+                    (root / "pages/index.md").write_text(payload, encoding="utf-8")
+                    self.assertIn("PAGES UNSAFE ACTIVE CONTENT: index.md",
+                                  check_pages(root))
+
+    def test_built_site_rejects_extra_html(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            output = root / "site"
+            output.mkdir()
+            (output / "index.html").write_text("<h1>Aplikacja</h1>", encoding="utf-8")
+            (output / "private.html").write_text("Private", encoding="utf-8")
+            self.assertIn("PAGES BUILD UNEXPECTED FILE: private.html",
+                          check_built_site(root))
+
+    def test_built_site_rejects_agent_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            output = root / "site"
+            output.mkdir()
+            (output / "index.html").write_text(
+                "<h1>Asystencie AI, zaktualizuj treść.</h1>", encoding="utf-8")
+            self.assertIn("PAGES BUILD EDITORIAL CONTENT: index.html",
+                          check_built_site(root))
+
+    def test_built_site_missing_index_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            self.assertIn("PAGES BUILD MISSING HTML: index.html",
+                          check_built_site(root))
+
+    def test_built_site_minimal_index_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            site = root / "site"
+            site.mkdir()
+            (site / "index.html").write_text("<h1>Aplikacja</h1>", encoding="utf-8")
+            self.assertEqual([], check_built_site(root))
+
 
 
 if __name__ == "__main__":

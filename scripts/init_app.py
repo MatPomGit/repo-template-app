@@ -25,6 +25,13 @@ def initialise(root: Path, app_id: str, title: str, owner: str,
                 "\n" in s or "\r" in s for s in (title, owner, runtime)
             )):
         raise ValueError("title, owner and runtime must be meaningful single-line values")
+    # Reused verbatim in a public Markdown heading and MkDocs metadata.
+    if (len(title.strip()) > 140
+            or re.search(r"[<>\[\]!*\\]", title)
+            or chr(96) in title
+            or any(ord(ch) < 32 or 127 <= ord(ch) <= 159 for ch in title)
+            or re.search(r"\b(?:javascript|vbscript|data|file)\s*:", title, re.I)):
+        raise ValueError("title must be plain text without markup or control characters")
     parsed = urlsplit(repository_url)
     if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
         raise ValueError("repository URL must be HTTPS with no credentials")

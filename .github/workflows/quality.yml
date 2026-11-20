@@ -19,10 +19,18 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
-      - name: Checkout exact revision
+      - name: Checkout exact PR head (or push SHA)
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5, Node 24
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Assert exact revision and report SHA
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          echo "Tested commit: $ACTUAL_SHA"
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6, Node 24
         with:
@@ -35,5 +43,9 @@ jobs:
         run: python scripts/validate_repository.py --phase scaffold
       - name: Validate public Pages content and boundary
         run: python scripts/validate_pages.py
+      - name: Build isolated Pages without deployment
+        run: python -m mkdocs build --strict
+      - name: Audit rendered public Pages
+        run: python scripts/validate_pages.py --site-dir site
       - name: Run unit, smoke and negative tests
         run: python -m unittest discover -s tests -v

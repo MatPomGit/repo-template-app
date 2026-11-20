@@ -365,6 +365,21 @@ class ContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "restricted to scaffold"):
                 initialise(*args)
 
+    def test_initializer_rejects_markup_title_without_writing(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            before = (root / "pages/index.md").read_bytes()
+            for title in ("<script>alert(1)</script>", "A [link](https://x.test)",
+                          "A ![image](https://x.test)", "Markdown *emphasis*",
+                          "Bad " + chr(96) + "code" + chr(96), "X javascript:alert(1)"):
+                with self.subTest(title=title):
+                    with self.assertRaisesRegex(ValueError, "plain text"):
+                        initialise(root, "app-fixture", title, "Mateusz Pomianek",
+                                   "https://github.com/MatPomGit/app-fixture",
+                                   "desktop", "Python 3.12")
+                    self.assertEqual(before, (root / "pages/index.md").read_bytes())
+
     def test_initializer_rejects_multiline_title_without_writing(self):
         from init_app import initialise
         with tempfile.TemporaryDirectory() as tmp:
