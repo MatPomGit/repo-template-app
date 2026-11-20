@@ -49,10 +49,11 @@ jobs:
         run: |
           python - <<'PY'
           import re
+          import hashlib
           from pathlib import Path
           for p in sorted(Path("site").rglob("*")):
               if p.is_file():
-                  print("SITE ASSET:", p.relative_to("site").as_posix())
+                  print("SITE ASSET:", p.relative_to("site").as_posix(), hashlib.sha256(p.read_bytes()).hexdigest())
                   if p.suffix == ".html":
                       s = p.read_text(encoding="utf-8")
                       for match in re.finditer(r"<script\b[^>]*>[\s\S]*?</script>", s, re.I):
