@@ -207,7 +207,8 @@ def validate_schema(root: Path, schema: dict, errors: list[str]) -> None:
     if not isinstance(properties, dict):
         errors.append("CONTRACT: missing properties map")
         return
-    if properties.get("schema_version", {}).get("const") != 1:
+    version_property = properties.get("schema_version")
+    if not isinstance(version_property, dict) or version_property.get("const") != 1:
         errors.append("CONTRACT: event schema_version must be 1")
     mandatory = {"schema_version", "event_id", "session_id", "timestamp_utc",
                  "source", "event_type", "quality", "payload"}
@@ -348,7 +349,7 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
         declared_spdx = c.get("license_spdx")
         expected_headings = {"MIT": "MIT License", "Apache-2.0": "Apache License",
                              "BSD-3-Clause": "Redistribution and use"}
-        if declared_spdx not in expected_headings:
+        if not isinstance(declared_spdx, str) or declared_spdx not in expected_headings:
             errors.append("LICENSE: unsupported SPDX identifier; manual review required")
         elif expected_headings[declared_spdx].lower() not in license_text.lower():
             errors.append("LICENSE: SPDX declaration inconsistent with text")

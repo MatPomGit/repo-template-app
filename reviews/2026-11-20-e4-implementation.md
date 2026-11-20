@@ -19,3 +19,7 @@ Data: 2026-11-20. Źródło: [E3.0 #3](https://github.com/MatPomGit/repo-templat
 - Po uruchomieniu GitHub Actions odnotować exact SHA i PASS/FAIL.
 - Release gate pozostaje domyślnie zablokowany; wydanie nie jest autoryzowane przez testy fixture.
 - Oddzielnie skonfigurować wymagalność check `Validate scaffold and security` i recenzji w rulesecie `main`, bez obchodzenia ochrony.
+
+## Dodatkowy przegląd odporności
+
+W trakcie kontynuacji E4.0 wykryto dwa punkty, w których dopuszczalny formalnie schemat JSON Schema (wartość boolowska dla property) lub błędnie stypowany SPDX (lista zamiast stringa) powodowały wyjątek Pythona. Dodano kontrolowane błędy walidacji i osobne testy negatywne. Inicjalizator odrzuca aplikacje wykraczające poza stan `scaffold/not_released`, niezależnie od zawartości metadanych, oraz błędne wartości jednoliniowe. W CI dodano `pip check`, który diagnozuje niespójność zainstalowanych zależności, ale **nie zastępuje** blokady hashy zależności tranzytywnych.

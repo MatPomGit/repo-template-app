@@ -321,6 +321,53 @@ class ContractTests(unittest.TestCase):
                 self.assertIn("TEST REPORT: SHA256 mismatch or missing",
                               check(root, "release", evidence))
 
+    def test_boolean_schema_version_rejected_without_exception(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            p = root / "contracts/events.schema.json"
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            obj["properties"]["schema_version"] = False
+            p.write_text(json.dumps(obj), encoding="utf-8")
+            errors = check(root)
+            self.assertIn("CONTRACT: event schema_version must be 1", errors)
+
+    def test_non_scalar_spdx_rejected_without_exception(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            p = root / "config/component.json"
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            obj["license_spdx"] = ["MIT"]
+            p.write_text(json.dumps(obj), encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                errors = check(root, "release", evidence)
+            self.assertIn("LICENSE: unsupported SPDX identifier; manual review required", errors)
+
+    def test_initializer_refuses_ready_project(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            args = (root, "app-fixture", "App Fixture", "Mateusz Pomianek",
+                    "https://github.com/MatPomGit/app-fixture", "desktop", "Python 3.12")
+            initialise(*args)
+            p = root / "config/component.json"
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            obj["release_status"] = "ready"
+            p.write_text(json.dumps(obj), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "restricted to scaffold"):
+                initialise(*args)
+
+    def test_initializer_rejects_multiline_title_without_writing(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            before = (root / "config/component.json").read_bytes()
+            with self.assertRaisesRegex(ValueError, "single-line"):
+                initialise(root, "app-fixture", "Title\\nInjected", "Mateusz Pomianek",
+                           "https://github.com/MatPomGit/app-fixture", "desktop", "Python 3.12")
+            self.assertEqual(before, (root / "config/component.json").read_bytes())
+
 
 if __name__ == "__main__":
     unittest.main()

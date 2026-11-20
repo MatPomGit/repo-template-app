@@ -5,6 +5,7 @@
 ```bash
 python -m pip install -r requirements-ci.txt
 python scripts/validate_repository.py --phase scaffold
+python -m pip check
 python -m unittest discover -s tests -v
 python src/example_cli.py --output outputs/example.synthetic.json
 ```

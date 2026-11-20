@@ -20,8 +20,11 @@ def initialise(root: Path, app_id: str, title: str, owner: str,
                repository_url: str, platform: str, runtime: str) -> None:
     if not APP_ID.fullmatch(app_id):
         raise ValueError("id must be a lowercase app-* slug")
-    if not title.strip() or "REPLACE" in title or not owner.strip():
-        raise ValueError("title and owner must be meaningful")
+    if (not title.strip() or "REPLACE" in title or not owner.strip()
+            or not runtime.strip() or any(
+                "\n" in s or "\r" in s for s in (title, owner, runtime)
+            )):
+        raise ValueError("title, owner and runtime must be meaningful single-line values")
     parsed = urlsplit(repository_url)
     if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
         raise ValueError("repository URL must be HTTPS with no credentials")
@@ -32,11 +35,17 @@ def initialise(root: Path, app_id: str, title: str, owner: str,
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("type") != "app":
         raise ValueError("not an app template")
+    if manifest.get("release_status") != "scaffold":
+        raise ValueError("initializer is restricted to scaffold projects")
     old_id = manifest.get("component_id", "")
     if not (old_id.startswith("REPLACE") or old_id == app_id):
         raise ValueError("repository already initialised to a different component")
     state = yaml.safe_load(state_path.read_text(encoding="utf-8"))
     citation = yaml.safe_load(citation_path.read_text(encoding="utf-8"))
+    if not isinstance(state, dict) or not isinstance(citation, dict):
+        raise ValueError("PROJECT_STATE and CITATION must be YAML mappings")
+    if state.get("release_status") != "not_released":
+        raise ValueError("initializer cannot modify a project with release status")
     authors = citation.get("authors", [])
     if not any(
         isinstance(a, dict)
