@@ -112,7 +112,7 @@ class DocumentationPolicyTests(unittest.TestCase):
     def test_invalid_utf8_document_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))
-            (root / "ARCHITECTURE.md").write_bytes(b"\\xff")
+            (root / "ARCHITECTURE.md").write_bytes(b"\xff")
             self.assertIn("DOC UNREADABLE: ARCHITECTURE.md", check_documentation(root))
 
 
