@@ -45,6 +45,19 @@ jobs:
         run: python scripts/validate_pages.py
       - name: Build isolated Pages without deployment
         run: python -m mkdocs build --strict
+      - name: Record rendered asset inventory for E4 audit
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          for p in sorted(Path("site").rglob("*")):
+              if p.is_file():
+                  print("SITE ASSET:", p.relative_to("site").as_posix())
+                  if p.suffix == ".html":
+                      s = p.read_text(encoding="utf-8")
+                      for match in re.finditer(r"<script\\b[^>]*>[\\s\\S]*?</script>", s, re.I):
+                          print("SITE SCRIPT:", repr(match.group(0)[:400]))
+          PY
       - name: Audit rendered public Pages
         run: python scripts/validate_pages.py --site-dir site
       - name: Run unit, smoke and negative tests
