@@ -59,6 +59,12 @@ Dla pełnych kroków użyj [.github/AGENT_WORKFLOW.md](.github/AGENT_WORKFLOW.md
 
 Po scaleniu sprawdź aktualny `main`, zachowaj raport w Issue/PR oraz zwolnij tylko własne lease i zasoby po weryfikacji. Nigdy nie usuwaj niezmergowanych commitów, nieznanych worktree ani cudzych procesów. Przy blokadzie opisz w istniejącym Issue dokładny warunek wznowienia i wykonaj inne bezpieczne prace.
 
-## 7. Profile platformowe
+## 7. Dokumentacja i budżety znaków
+
+Przed rozbudową aplikacji przeczytaj [standard dokumentacji](docs/documentation.md) i mapę [architektury](docs/architecture/README.md). `ARCHITECTURE.md` ma pozostać krótkim, kanonicznym przeglądem, ADR zapisują uzasadnienia decyzji, `SECURITY.md` wskazuje prawdziwy kanał zgłaszania luk, a `CODE_OF_CONDUCT.md`, `GOVERNANCE.md` i `SUPPORT.md` odpowiadają za inne, odrębne obszary. Nie kopiuj tej samej treści do kilku dokumentów.
+
+Limity są zapisane w [polityce](config/documentation-policy.json) i sprawdzane przez `python scripts/validate_documentation.py`, także w walidacji CI. **Nie zwiększaj limitu tylko po to, aby ukryć redundancję.** Przy pierwszej implementacji zmień deklaracje scaffold na rzeczywiste komponenty, kontrakty, przepływy, model zagrożeń i dowody. Nie zmyślaj uruchomienia, wsparcia ani gotowości bezpieczeństwa.
+
+## 8. Profile platformowe
 
 Przeczytaj lokalne `AGENTS.md` **tylko dla profili rzeczywiście objętych zadaniem**, wraz z ich `README.md`: [Android](profiles/android/AGENTS.md), [Desktop](profiles/desktop/AGENTS.md), [Sensor](profiles/sensor/AGENTS.md), [Unity](profiles/unity/AGENTS.md), [Web](profiles/web/AGENTS.md). Profil jest wskazówką implementacyjną, a nie certyfikatem urządzenia ani poleceniem instalacji pięciu SDK.

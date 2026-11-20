@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- 2026-11-20: dodano strukturę architektury, Code of Conduct, governance i support, model zagrożeń, ADR bezpieczeństwa, runbook oraz politykę limitów znaków. Walidator dokumentacji z testami regresyjnymi jest częścią scaffold CI.
+
 - 2026-11-20: ujednolicono kontrakt agentów APP z zasadami Research Autopilot, HomeServer i PRz: R0-R3, DoR/DoD, exact-SHA, granice uprawnień, bezpieczne merge/release, współpraca agentów i pięć lokalnych profili; dodano testy spójności dokumentacji.
 
 - 2026-11-20 (E4.0 hardening): kontrolowane błędy dla boolowskiego JSON Schema i nieskalarnych SPDX; blokada ponownego inicjalizowania aplikacji wydanej; testy regresyjne oraz `pip check` w CI.

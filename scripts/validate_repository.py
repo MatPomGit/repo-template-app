@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from validate_documentation import check_documentation
+
 try:
     import yaml
     from jsonschema import Draft202012Validator, FormatChecker
@@ -31,6 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_KIND = "app"
 REQUIRED = (
     "README.md", "AGENTS.md", "ARCHITECTURE.md", "PROJECT_STATE.yaml",
+    "CODE_OF_CONDUCT.md", "GOVERNANCE.md", "SUPPORT.md",
     "SECURITY.md", "CONTRIBUTING.md", "LICENSE", "CITATION.cff",
     "CHANGELOG.md", "TEMPLATE_SETUP.md", "mkdocs.yml", ".gitignore",
     ".gitattributes", ".github/ACTIONS_POLICY.md",
@@ -40,7 +43,14 @@ REQUIRED = (
     "profiles/android/AGENTS.md", "profiles/desktop/AGENTS.md",
     "profiles/sensor/AGENTS.md", "profiles/unity/AGENTS.md",
     "profiles/web/AGENTS.md",
-    "config/component.json", "config/release-gate.json", "docs/index.md",
+    "config/component.json", "config/release-gate.json",
+    "config/documentation-policy.json", "docs/index.md",
+    "docs/documentation.md", "docs/architecture/README.md",
+    "docs/architecture/components.md", "docs/architecture/data-flow.md",
+    "docs/architecture/deployment.md", "docs/security/threat-model.md",
+    "docs/security/incident-response.md", "docs/adr/README.md",
+    "docs/adr/0002-security-boundaries.md", "docs/operations/runbook.md",
+    "scripts/validate_documentation.py", "tests/test_documentation_policy.py",
     "docs/contracts.md", "docs/compatibility.md", "docs/consumers.md",
     "docs/dependencies.md", "docs/testing.md", "docs/installation.md",
     "docs/privacy.md", "docs/releases.md", "docs/pages.md",
@@ -312,6 +322,7 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
     if not isinstance(c.get("source_paths"), list) or not c.get("source_paths"):
         errors.append("SOURCES: non-empty source_paths required")
     validate_schema(root, schema, errors)
+    errors.extend(check_documentation(root))
     errors.extend(scan_security(root))
 
     if phase == "release":

@@ -22,6 +22,8 @@ Zadanie spełnia **Definition of Ready (DoR)**, jeżeli ma mierzalny rezultat, z
 
 ## C. Weryfikacja i niezależny przegląd
 
+Przed każdym istotnym zapisem do dokumentacji sprawdź [standard i budżety](../docs/documentation.md). Gdy aplikacja otrzyma rzeczywisty kod, aktualizuj `ARCHITECTURE.md`, `docs/architecture/`, zagrożenia i istotne ADR wraz z implementacją. Nowych placeholderów nie uznawaj za potwierdzoną ocenę. Przekroczenie limitu znaków napraw przez eliminację powtórzeń i odpowiedzialny podział treści, nie przez arbitralne zwiększenie limitu.
+
 Wymagania zależą od poziomu ryzyka w [AGENTS.md](../AGENTS.md). Stosuj najwęższe adekwatne polecenia z [testowania](../docs/testing.md), a następnie pełną szybką regresję, jeśli istnieje. Dla bieżącego szablonu:
 
 ```bash

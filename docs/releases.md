@@ -2,6 +2,8 @@
 
 Samo uzupełnienie `config/release-gate.json` wartościami `true` **nie dowodzi wykonania testów**. Wzorzec pozostaje zablokowany w stanie scaffold. Kontrola struktury nie jest zezwoleniem na publikację paczek.
 
+Przed decyzją wydawniczą sprawdź też aktualność [architektury](architecture/README.md), [modelu zagrożeń](security/threat-model.md), [kanału bezpieczeństwa](../SECURITY.md), [runbook](operations/runbook.md) i [limity dokumentacji](documentation.md). Automatyczna kontrola długości **nie jest audytem poprawności lub kompletności** tych dokumentów.
+
 Po wdrożeniu faktycznej aplikacji, testów oraz zatwierdzeniu wydania:
 
 1. Zbuduj artefakt dla dokładnego `HEAD`; utrwal raport testów oraz sumę SHA-256 artefaktu.

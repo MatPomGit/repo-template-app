@@ -3,6 +3,20 @@ docs_dir: docs
 site_url: null
 nav:
   - Start: index.md
+  - Architektura:
+      - Przegląd: architecture/README.md
+      - Komponenty: architecture/components.md
+      - Przepływy danych: architecture/data-flow.md
+      - Wdrożenie: architecture/deployment.md
+  - Bezpieczeństwo:
+      - Model zagrożeń: security/threat-model.md
+      - Obsługa incydentów: security/incident-response.md
+  - Standard dokumentacji: documentation.md
+  - Runbook: operations/runbook.md
+  - ADR:
+      - Rejestr: adr/README.md
+      - Własność kontraktu: adr/0001-contract.md
+      - Granice bezpieczeństwa: adr/0002-security-boundaries.md
   - Instalacja: installation.md
   - Kontrakty: contracts.md
   - Zgodność: compatibility.md
@@ -12,4 +26,3 @@ nav:
   - Prywatność: privacy.md
   - Wydania: releases.md
   - Pages: pages.md
-  - ADR: adr/0001-contract.md

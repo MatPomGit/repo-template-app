@@ -5,10 +5,13 @@
 ```bash
 python -m pip install -r requirements-ci.txt
 python scripts/validate_repository.py --phase scaffold
+python scripts/validate_documentation.py
 python -m pip check
 python -m unittest discover -s tests -v
 python src/example_cli.py --output outputs/example.synthetic.json
 ```
+
+Walidator dokumentacji wymusza liczbę znaków Unicode zgodnie z [polityką](../config/documentation-policy.json); przekroczenie limitu, zły format polityki lub brak wymaganej dokumentacji powodują FAIL. Sama długość i obecność dokumentów nie potwierdzają kompletności architektury, weryfikacji zagrożeń ani prawdziwości deklaracji.
 
 Walidator sprawdza JSON Schema Draft 2020-12, format `date-time` przykładowego zdarzenia syntetycznego, zgodność metadanych, autorstwo oraz wybrane sygnatury sekretów i ryzykowne ścieżki. Skaner nie zastępuje audytu prywatności ani badania rzeczywistych danych. Walidacja strukturalna jest niezależna od testów sprzętowych.
 
