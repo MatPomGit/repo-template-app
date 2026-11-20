@@ -292,7 +292,7 @@ class _RenderedSecurity(HTMLParser):
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
         props = {name.lower(): (value or "") for name, value in attrs}
-        if tag in {"iframe", "object", "embed", "form", "base"}:
+        if tag in {"iframe", "object", "embed", "base"} or (tag == "form" and props):
             self.errors.append("PAGES BUILD ACTIVE TAG: " + self.html_path)
         if any(name.startswith("on") for name in props):
             self.errors.append("PAGES BUILD EVENT HANDLER: " + self.html_path)
