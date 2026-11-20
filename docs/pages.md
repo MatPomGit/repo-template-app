@@ -4,7 +4,7 @@ Strona przeznaczona dla odwiedzających jest **oddzielona od repozytorium**. Źr
 
 ## Granice publikacji
 
-Konfiguracja `mkdocs.yml` musi wskazywać `docs_dir: pages` oraz `site_dir: site`. Każdy zasób `pages/` musi zostać jawnie wymieniony w [public_files](../config/pages-policy.json). Bez zatwierdzenia tej listy nie dodawaj nowych stron, obrazów ani skryptów. Nie używaj symlinków, automatycznego kopiowania z `docs/`, pluginów z dostępem do pozostałych plików repozytorium ani publikacji wszystkich plików projektu.
+Konfiguracja `mkdocs.yml` musi wskazywać `docs_dir: pages` oraz `site_dir: site`. **Samo `mkdocs.yml` nie zabezpiecza ustawień publikacji w GitHub. Zabroniony jest tryb Pages „Deploy from a branch” z `main:/docs` lub z root repozytorium.** Dopuszczalna jest dopiero osobno zatwierdzona publikacja wygenerowanego katalogu `site/` przez bezpieczny GitHub Actions artifact albo dedykowaną gałąź `gh-pages`, zawierającą wyłącznie zatwierdzone pliki publiczne. Publikacja nadal nie może uruchamiać się automatycznie. Każdy zasób `pages/` musi zostać jawnie wymieniony w [public_files](../config/pages-policy.json). Bez zatwierdzenia tej listy nie dodawaj nowych stron, obrazów ani skryptów. Nie używaj symlinków, automatycznego kopiowania z `docs/`, pluginów z dostępem do pozostałych plików repozytorium ani publikacji wszystkich plików projektu.
 
 ## Zasady języka
 
