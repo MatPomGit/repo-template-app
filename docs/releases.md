@@ -2,6 +2,10 @@
 
 Samo uzupełnienie `config/release-gate.json` wartościami `true` **nie dowodzi wykonania testów**. Wzorzec pozostaje zablokowany w stanie scaffold. Kontrola struktury nie jest zezwoleniem na publikację paczek.
 
+GitHub Pages pobiera wyłącznie zawartość `pages/` z jawnej listy dopuszczenia. `docs/` nie jest źródłem publikacji; wymagany jest osobny przegląd zawartości i widoczności witryny, szczególnie przy prywatnym repozytorium. Zobacz [politykę Pages](pages.md).
+
+Przed decyzją wydawniczą sprawdź też aktualność [architektury](architecture/README.md), [modelu zagrożeń](security/threat-model.md), [kanału bezpieczeństwa](../SECURITY.md), [runbook](operations/runbook.md) i [limity dokumentacji](documentation.md). Automatyczna kontrola długości **nie jest audytem poprawności lub kompletności** tych dokumentów.
+
 Po wdrożeniu faktycznej aplikacji, testów oraz zatwierdzeniu wydania:
 
 1. Zbuduj artefakt dla dokładnego `HEAD`; utrwal raport testów oraz sumę SHA-256 artefaktu.

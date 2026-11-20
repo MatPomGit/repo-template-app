@@ -8,6 +8,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
+import yaml
 from pathlib import Path
 from unittest.mock import patch
 
@@ -236,13 +238,18 @@ class ContractTests(unittest.TestCase):
                     "https://github.com/MatPomGit/app-e4-fixture", "desktop", "Python 3.12")
             initialise(*args)
             first = {p: (root / p).read_bytes() for p in (
-                "README.md", "CITATION.cff", "PROJECT_STATE.yaml", "config/component.json"
+                "README.md", "CITATION.cff", "PROJECT_STATE.yaml", "config/component.json",
+                "mkdocs.yml", "pages/index.md"
             )}
             initialise(*args)
             self.assertEqual(first, {p: (root / p).read_bytes() for p in first})
             self.assertEqual([], check(root, "scaffold"))
             self.assertEqual("scaffold",
                 json.loads((root / "config/component.json").read_text())["release_status"])
+            self.assertEqual("App E4 Fixture", yaml.safe_load(
+                (root / "mkdocs.yml").read_text())["site_name"])
+            self.assertTrue((root / "pages/index.md").read_text(
+                encoding="utf-8").startswith("# App E4 Fixture"))
 
     def test_initializer_does_not_overwrite_existing_component(self):
         from init_app import initialise
@@ -357,6 +364,21 @@ class ContractTests(unittest.TestCase):
             p.write_text(json.dumps(obj), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "restricted to scaffold"):
                 initialise(*args)
+
+    def test_initializer_rejects_markup_title_without_writing(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            before = (root / "pages/index.md").read_bytes()
+            for title in ("<script>alert(1)</script>", "A [link](https://x.test)",
+                          "A ![image](https://x.test)", "Markdown *emphasis*",
+                          "Bad " + chr(96) + "code" + chr(96), "X javascript:alert(1)"):
+                with self.subTest(title=title):
+                    with self.assertRaisesRegex(ValueError, "plain text"):
+                        initialise(root, "app-fixture", title, "Mateusz Pomianek",
+                                   "https://github.com/MatPomGit/app-fixture",
+                                   "desktop", "Python 3.12")
+                    self.assertEqual(before, (root / "pages/index.md").read_bytes())
 
     def test_initializer_rejects_multiline_title_without_writing(self):
         from init_app import initialise

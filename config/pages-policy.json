@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "source_dir": "pages",
+  "output_dir": "site",
+  "mkdocs_config": "mkdocs.yml",
+  "public_files": [
+    "index.md"
+  ],
+  "note": "Every public asset requires approval on the exact SHA. Publication is separate; internal docs are excluded."
+}

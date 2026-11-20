@@ -2,3 +2,4 @@
 # Full environment reproducibility requires a separately reviewed lockfile.
 jsonschema==4.26.0
 PyYAML==6.0.3
+mkdocs==1.6.1
