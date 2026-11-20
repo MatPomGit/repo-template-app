@@ -3,12 +3,14 @@
 To **szkielet**, nie działająca aplikacja ani biblioteka. Skopiuj jako osobne repo, nie jako podfolder innego szablonu.
 
 1. Stwórz repozytorium `app-<temat>` i skopiuj pliki (także ukryte `.github`, `.gitignore`). Samo skopiowanie plików nie ustawia flagi GitHub Template.
-2. Zaktualizuj `config/component.json`, `PROJECT_STATE.yaml`, README, `CITATION.cff`, licencję i SECURITY.md. W `CITATION.cff` zawsze zachowaj Mateusza Pomianka jako autora, a inne osoby dodawaj wyłącznie po potwierdzeniu rzeczywistego wkładu. Nie twórz fałszywych licencji ani testów.
+2. Uruchom `python scripts/init_app.py --id app-przyklad --title "Tytuł aplikacji" --repo-url https://github.com/OWNER/app-przyklad --platform desktop` po instalacji zależności `requirements-ci.txt`, następnie zweryfikuj `config/component.json`, `PROJECT_STATE.yaml`, README, `CITATION.cff`, licencję i SECURITY.md. W `CITATION.cff` zawsze zachowaj Mateusza Pomianka jako autora, a inne osoby dodawaj wyłącznie po potwierdzeniu rzeczywistego wkładu. Nie twórz fałszywych licencji ani testów.
 3. Wybierz właściwe dokumenty z `profiles/`, nie kopiuj wszystkich stosów technologicznych do kodu produkcyjnego.
 4. W izolowanym środowisku zainstaluj `python -m pip install -r requirements-ci.txt`, a następnie uruchom `python scripts/validate_repository.py --phase scaffold` oraz `python -m unittest discover -s tests -v`.
 5. Dodaj kod i testy; przygotuj API/CLI, kompatybilność i odbiorców. Wykonaj prawdziwe testy na docelowym środowisku.
 6. Po rzeczywistych testach zbudowanego artefaktu przygotuj nieśledzony plik dowodów `outputs/release-evidence.json`, powiąż raport i SHA-256 z dokładnym HEAD, a następnie uruchom `python scripts/validate_repository.py --phase release --evidence outputs/release-evidence.json`. Patrz `docs/releases.md`. Sama deklaracja `true` nie stanowi dowodu; walidacja niczego nie publikuje.
 7. Dopiero po zaakceptowaniu sposobu dystrybucji publikuj package/release/Pages. Dowody powiąż z dokładnym SHA.
+
+Po inicjalizacji sprawdź `python src/example_cli.py --output outputs/example.synthetic.json`. To syntetyczny smoke test referencyjnego CLI, nie rzeczywista walidacja docelowej aplikacji. `init_app.py` nie przyznaje licencji, nie zmienia statusu wydania i nie dodaje rzekomych współautorów.
 
 GitHub Template repository kopiuje początkowe pliki, ale późniejszych zmian nie propaguje do potomnych repo. Research Autopilot powinien osobno kontrolować `template_version` i aktualność kontraktów.
 

@@ -22,7 +22,11 @@ Programy badawcze i projekty `msc-*` instalują określone wydanie, nigdy nie ko
 python -m pip install -r requirements-ci.txt
 python scripts/validate_repository.py --phase scaffold
 python -m unittest discover -s tests -v
+# Po skonfigurowaniu aplikacji można wykonać smoke test CLI:
+python src/example_cli.py --output outputs/example.synthetic.json
 ```
+
+Konfiguracja metadanych: `python scripts/init_app.py --help`. Wzorcowe CLI `src/example_cli.py` emituje wyłącznie zdarzenie syntetyczne; nie jest aplikacją produkcyjną ani adapterem sprzętu.
 
 Rozpocznij od [TEMPLATE_SETUP.md](TEMPLATE_SETUP.md). Strona Pages jest opcjonalna i nie jest bazą danych.
 
