@@ -173,6 +173,16 @@ class PagesPolicyTests(unittest.TestCase):
             self.assertIn("PAGES BUILD MISSING HTML: index.html",
                           check_built_site(root))
 
+    def test_built_site_does_not_flag_theme_javascript_as_editorial_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            site = root / "site"
+            site.mkdir()
+            (site / "index.html").write_text(
+                "<script>const x = 'REPLACE';</script><h1>Aplikacja</h1>",
+                encoding="utf-8")
+            self.assertEqual([], check_built_site(root))
+
     def test_built_site_minimal_index_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))

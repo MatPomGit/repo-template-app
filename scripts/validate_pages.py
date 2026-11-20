@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 
 import yaml
@@ -170,6 +171,34 @@ def check_pages(root: Path = ROOT) -> list[str]:
     return sorted(set(errors))
 
 
+class _RenderedText(HTMLParser):
+    """Extract the actual text shown to visitors, excluding theme scripts/CSS."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.ignored = 0
+        self.fragments: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"script", "style"}:
+            self.ignored += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in {"script", "style"} and self.ignored:
+            self.ignored -= 1
+
+    def handle_data(self, data: str) -> None:
+        if not self.ignored:
+            self.fragments.append(data)
+
+
+def rendered_text(html: str) -> str:
+    parser = _RenderedText()
+    parser.feed(html)
+    parser.close()
+    return " ".join(parser.fragments)
+
+
 def check_built_site(root: Path = ROOT, site_dir: Path | None = None) -> list[str]:
     """Inspect rendered output; validation is not publication authorisation."""
     root = Path(root).resolve()
@@ -211,7 +240,7 @@ def check_built_site(root: Path = ROOT, site_dir: Path | None = None) -> list[st
     errors: list[str] = []
     found_html: set[str] = set()
     # Only assets from the pinned MkDocs theme or approved sources may appear.
-    theme_dirs = {"css", "js", "img", "fonts", "search"}
+    theme_dirs = {"css", "js", "img", "fonts", "webfonts", "search"}
     theme_ext = {".css", ".js", ".png", ".ico", ".svg", ".woff", ".woff2",
                  ".ttf", ".eot", ".map", ".json", ".gif", ".webp"}
     generated = {"sitemap.xml", "sitemap.xml.gz", "search/search_index.json"}
@@ -244,7 +273,8 @@ def check_built_site(root: Path = ROOT, site_dir: Path | None = None) -> list[st
                     errors.append("PAGES BUILD OVERSIZED: " + rel)
                     continue
                 value = file.read_text(encoding="utf-8")
-                if any(regex.search(value) for regex in BANNED):
+                checked_text = rendered_text(value) if file.suffix.lower() == ".html" else value
+                if any(regex.search(checked_text) for regex in BANNED):
                     errors.append("PAGES BUILD EDITORIAL CONTENT: " + rel)
                 if re.search(r"(?:\.\./docs/|/\.github/|\bAGENTS\.md\b|file://)",
                              value, re.I):
