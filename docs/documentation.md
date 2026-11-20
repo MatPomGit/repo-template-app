@@ -24,7 +24,7 @@ Maszynowym źródłem limitów jest [config/documentation-policy.json](../config
 | Główne `AGENTS.md`, `README.md`, `ARCHITECTURE.md` | 12 000 |
 | `SECURITY.md`, główna procedura agentów | 10 000 |
 | `CONTRIBUTING.md`, rozdziały architektury i model zagrożeń | 8 000–8 500 |
-| `CODE_OF_CONDUCT.md`, `SUPPORT.md`, pojedynczy ADR | 6 000–7 000 |
+| `CODE_OF_CONDUCT.md`, `SUPPORT.md`, pojedynczy ADR (także nowy) | 6 000–6 500 |
 | Lokalne `profiles/*/AGENTS.md` | 3 000 |
 | Pozostałe dokumenty `docs/` bez własnego limitu | 10 000 |
 

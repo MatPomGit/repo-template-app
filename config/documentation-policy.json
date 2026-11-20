@@ -43,6 +43,7 @@
     "profiles/*/README.md": 7000,
     "reviews/*.md": 20000,
     ".github/ISSUE_TEMPLATE/*.md": 5000,
-    ".github/PULL_REQUEST_TEMPLATE.md": 5000
+    ".github/PULL_REQUEST_TEMPLATE.md": 5000,
+    "docs/adr/[0-9][0-9][0-9][0-9]-*.md": 6500
   }
 }

@@ -54,7 +54,7 @@ class DocumentationPolicyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))
             path = root / "docs/adr/0003-extra.md"
-            path.write_text("a" * 10001, encoding="utf-8")
+            path.write_text("a" * 6501, encoding="utf-8")
             self.assertTrue(any("DOC LENGTH EXCEEDED: docs/adr/0003-extra.md" in e
                                 for e in check_documentation(root)))
 
@@ -87,6 +87,33 @@ class DocumentationPolicyTests(unittest.TestCase):
             path.write_text(json.dumps(obj), encoding="utf-8")
             self.assertIn("DOC POLICY: unsupported schema_version",
                           check_documentation(root))
+
+    def test_boolean_policy_version_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            path = root / "config/documentation-policy.json"
+            obj = json.loads(path.read_text(encoding="utf-8"))
+            obj["schema_version"] = True
+            path.write_text(json.dumps(obj), encoding="utf-8")
+            self.assertIn("DOC POLICY: unsupported schema_version",
+                          check_documentation(root))
+
+    def test_symlink_to_external_document_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            root = self.fixture(workspace / "repo")
+            external = workspace / "external.md"
+            external.write_text("outside", encoding="utf-8")
+            doc = root / "SUPPORT.md"
+            doc.unlink()
+            doc.symlink_to(external)
+            self.assertIn("DOC SYMLINK: SUPPORT.md", check_documentation(root))
+
+    def test_invalid_utf8_document_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "ARCHITECTURE.md").write_bytes(b"\\xff")
+            self.assertIn("DOC UNREADABLE: ARCHITECTURE.md", check_documentation(root))
 
 
 if __name__ == "__main__":

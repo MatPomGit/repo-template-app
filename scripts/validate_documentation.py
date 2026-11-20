@@ -33,7 +33,7 @@ def check_documentation(root: Path = ROOT) -> list[str]:
         policy = json.loads((root / POLICY).read_text(encoding="utf-8"))
     except (OSError, UnicodeError, ValueError):
         return ["DOC POLICY: missing or malformed " + POLICY]
-    if not isinstance(policy, dict) or policy.get("schema_version") != 1:
+    if not isinstance(policy, dict) or type(policy.get("schema_version")) is not int or policy["schema_version"] != 1:
         return ["DOC POLICY: unsupported schema_version"]
     if policy.get("count_method") != "unicode_codepoints":
         return ["DOC POLICY: expected unicode_codepoints"]
@@ -72,6 +72,9 @@ def check_documentation(root: Path = ROOT) -> list[str]:
                 errors.append("DOC MISSING: " + rel)
             continue
         try:
+            if not file.resolve(strict=True).is_relative_to(root):
+                errors.append("DOC OUTSIDE REPO: " + rel)
+                continue
             count = len(file.read_text(encoding="utf-8"))
         except (OSError, UnicodeError):
             errors.append("DOC UNREADABLE: " + rel)
