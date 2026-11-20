@@ -23,3 +23,5 @@ Data: 2026-11-20. Źródło: [E3.0 #3](https://github.com/MatPomGit/repo-templat
 ## Dodatkowy przegląd odporności
 
 W trakcie kontynuacji E4.0 wykryto dwa punkty, w których dopuszczalny formalnie schemat JSON Schema (wartość boolowska dla property) lub błędnie stypowany SPDX (lista zamiast stringa) powodowały wyjątek Pythona. Dodano kontrolowane błędy walidacji i osobne testy negatywne. Inicjalizator odrzuca aplikacje wykraczające poza stan `scaffold/not_released`, niezależnie od zawartości metadanych, oraz błędne wartości jednoliniowe. W CI dodano `pip check`, który diagnozuje niespójność zainstalowanych zależności, ale **nie zastępuje** blokady hashy zależności tranzytywnych.
+
+Komunikat pozytywnej walidacji wydania zmieniono na `PASS: app release-evidence consistency (NOT publication approval)`; nie stanowi on decyzji o wydaniu. Dodano test odrzucenia deklaracji Apache-2.0 przy tekście licencji MIT.

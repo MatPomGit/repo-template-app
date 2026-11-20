@@ -422,7 +422,9 @@ def main() -> int:
     errors = check(args.root, args.phase, args.evidence)
     for error in errors:
         print("ERROR:", error)
-    print(("FAIL" if errors else "PASS") + ": app " + args.phase)
+    label = ("scaffold" if args.phase == "scaffold"
+             else "release-evidence consistency (NOT publication approval)")
+    print(("FAIL" if errors else "PASS") + ": app " + label)
     return 1 if errors else 0
 
 

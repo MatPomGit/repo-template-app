@@ -368,6 +368,19 @@ class ContractTests(unittest.TestCase):
                            "https://github.com/MatPomGit/app-fixture", "desktop", "Python 3.12")
             self.assertEqual(before, (root / "config/component.json").read_bytes())
 
+    def test_release_wrong_supported_spdx_text_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            path = root / "config/component.json"
+            obj = json.loads(path.read_text(encoding="utf-8"))
+            obj["license_spdx"] = "Apache-2.0"
+            path.write_text(json.dumps(obj), encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                errors = check(root, "release", evidence)
+            self.assertIn("LICENSE: SPDX declaration inconsistent with text", errors)
+
 
 if __name__ == "__main__":
     unittest.main()
