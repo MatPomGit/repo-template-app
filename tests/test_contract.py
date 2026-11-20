@@ -8,6 +8,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
+import yaml
 from pathlib import Path
 from unittest.mock import patch
 
@@ -236,13 +238,18 @@ class ContractTests(unittest.TestCase):
                     "https://github.com/MatPomGit/app-e4-fixture", "desktop", "Python 3.12")
             initialise(*args)
             first = {p: (root / p).read_bytes() for p in (
-                "README.md", "CITATION.cff", "PROJECT_STATE.yaml", "config/component.json"
+                "README.md", "CITATION.cff", "PROJECT_STATE.yaml", "config/component.json",
+                "mkdocs.yml", "pages/index.md"
             )}
             initialise(*args)
             self.assertEqual(first, {p: (root / p).read_bytes() for p in first})
             self.assertEqual([], check(root, "scaffold"))
             self.assertEqual("scaffold",
                 json.loads((root / "config/component.json").read_text())["release_status"])
+            self.assertEqual("App E4 Fixture", yaml.safe_load(
+                (root / "mkdocs.yml").read_text())["site_name"])
+            self.assertTrue((root / "pages/index.md").read_text(
+                encoding="utf-8").startswith("# App E4 Fixture"))
 
     def test_initializer_does_not_overwrite_existing_component(self):
         from init_app import initialise
