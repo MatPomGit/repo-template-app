@@ -16,9 +16,11 @@ CONFIG_KEYS = {"site_name", "site_url", "docs_dir", "site_dir", "nav",
                "theme", "use_directory_urls"}
 BANNED = (
     re.compile(r"\b(?:AGENTS\.md|AGENT_WORKFLOW|CONTRIBUTING(?:\.md)?)\b", re.I),
-    re.compile(r"\b(?:TODO|FIXME|REPLACE(?:_[A-Z0-9_]+)?|PLACEHOLDER|TBD)\b", re.I),
+    re.compile(r"\b(?:TODO|FIXME|REPLACE(?:_[A-Z0-9_]+)?|PLACEHOLDER|TBD|"
+               r"NOT_RUN|NOT_VERIFIED|NOT_DEFINED|NOT_CONFIGURED|INTERNAL_ONLY)\b", re.I),
     re.compile(r"(?:instrukcj\w*\s+dla\s+agent\w*|poleceni\w*\s+dla\s+agent\w*|"
                r"agent\s*:\s*(?:wykonaj|zmień|dodaj|popraw|sprawdź)|"
+               r"dla\s+agenta\s*:|instructions for (?:an?\s+)?agent|"
                r"agent instructions|system prompt|developer instructions)", re.I),
     re.compile(r"(?:uwagi?\s+redakcyjne|notatk\w*\s+(?:dla\s+)?(?:autora|redaktora)|"
                r"editorial notes?|notes? to (?:author|editor)|"
@@ -29,7 +31,8 @@ BANNED = (
                r"send (?:a )?pull request)", re.I),
 )
 UNSAFE_PARTS = {"docs", ".github", "secrets", "credentials", "private",
-                "participants", "students", "raw", "internal"}
+                "participants", "students", "raw", "internal",
+                "agents.md", "agent_workflow.md", "contributing.md"}
 
 
 def safe_relative(path: object) -> bool:

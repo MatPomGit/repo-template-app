@@ -89,6 +89,27 @@ class PagesPolicyTests(unittest.TestCase):
             p.write_text(json.dumps(data))
             self.assertIn("PAGES POLICY: invalid public file allowlist", check_pages(root))
 
+    def test_direct_agent_note_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/index.md").write_text("Dla agenta: zmień opis", encoding="utf-8")
+            self.assertIn("PAGES EDITORIAL OR AGENT CONTENT: index.md", check_pages(root))
+
+    def test_contributing_document_cannot_be_allowlisted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            cfg = root / "config/pages-policy.json"
+            data = json.loads(cfg.read_text(encoding="utf-8"))
+            data["public_files"].append("CONTRIBUTING.md")
+            cfg.write_text(json.dumps(data), encoding="utf-8")
+            self.assertIn("PAGES POLICY: invalid public file allowlist", check_pages(root))
+
+    def test_not_run_editorial_marker_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "pages/index.md").write_text("Funkcja: NOT_RUN", encoding="utf-8")
+            self.assertIn("PAGES EDITORIAL OR AGENT CONTENT: index.md", check_pages(root))
+
 
 if __name__ == "__main__":
     unittest.main()
