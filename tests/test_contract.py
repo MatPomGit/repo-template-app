@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -138,6 +139,12 @@ class ContractTests(unittest.TestCase):
             "data_classification": "synthetic", "network_egress": "none",
         })
         config_path.write_text(json.dumps(comp), encoding="utf-8")
+        citation_path = root / "CITATION.cff"
+        citation_path.write_text(
+            citation_path.read_text(encoding="utf-8")
+            .replace('title: "REPLACE_APP_TITLE"', 'title: "Example"'),
+            encoding="utf-8",
+        )
         state = root / "PROJECT_STATE.yaml"
         state.write_text(state.read_text(encoding="utf-8")
                          .replace("REPLACE_COMPONENT_ID", "app-example")
@@ -154,6 +161,7 @@ class ContractTests(unittest.TestCase):
         artifact.parent.mkdir(exist_ok=True)
         artifact.write_bytes(b"synthetic package fixture")
         report = {
+            "schema_version": 1,
             "tested_commit_sha": "a" * 40, "status": "passed",
             "checks": {key: "passed" for key in (
                 "unit", "contract", "installation", "dependencies",
@@ -169,6 +177,9 @@ class ContractTests(unittest.TestCase):
             "hardware_verified": False, "hardware_report_path": None,
             "tested_commit_sha": "a" * 40,
             "test_report_path": "outputs/test-report.json",
+            "test_report_sha256": hashlib.sha256(
+                (root / "outputs/test-report.json").read_bytes()
+            ).hexdigest(),
             "release_artifact_path": "outputs/app-example.zip",
             "release_artifact_sha256": checksum,
         }
@@ -202,6 +213,113 @@ class ContractTests(unittest.TestCase):
             with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
                 result = check(root, "release", evidence)
             self.assertEqual([], result)
+
+    def test_reference_cli_smoke_schema(self):
+        from jsonschema import Draft202012Validator, FormatChecker
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "output.json"
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "src/example_cli.py"), "--output", str(out)],
+                text=True, capture_output=True, timeout=10,
+            )
+            self.assertEqual(0, result.returncode, result.stderr)
+            event = json.loads(out.read_text(encoding="utf-8"))
+            schema = json.loads((ROOT / "contracts/events.schema.json").read_text(encoding="utf-8"))
+            Draft202012Validator(schema, format_checker=FormatChecker()).validate(event)
+            self.assertEqual("synthetic", event["quality"])
+
+    def test_initializer_idempotent_and_coherent(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            args = (root, "app-e4-fixture", "App E4 Fixture", "Mateusz Pomianek",
+                    "https://github.com/MatPomGit/app-e4-fixture", "desktop", "Python 3.12")
+            initialise(*args)
+            first = {p: (root / p).read_bytes() for p in (
+                "README.md", "CITATION.cff", "PROJECT_STATE.yaml", "config/component.json"
+            )}
+            initialise(*args)
+            self.assertEqual(first, {p: (root / p).read_bytes() for p in first})
+            self.assertEqual([], check(root, "scaffold"))
+            self.assertEqual("scaffold",
+                json.loads((root / "config/component.json").read_text())["release_status"])
+
+    def test_initializer_does_not_overwrite_existing_component(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            args = (root, "app-first", "First", "Mateusz Pomianek",
+                    "https://github.com/MatPomGit/app-first", "desktop", "Python 3.12")
+            initialise(*args)
+            with self.assertRaisesRegex(ValueError, "already initialised"):
+                initialise(root, "app-second", *args[2:])
+
+    def test_invalid_semver_leading_zero_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            p = root / "config/component.json"
+            c = json.loads(p.read_text(encoding="utf-8"))
+            c["version"] = "01.2.3"
+            p.write_text(json.dumps(c), encoding="utf-8")
+            self.assertIn("VERSION: invalid SemVer", check(root))
+
+    def test_citation_title_mismatch_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            p = root / "CITATION.cff"
+            p.write_text(p.read_text(encoding="utf-8").replace(
+                'title: "REPLACE_APP_TITLE"', 'title: "Mismatched"'), encoding="utf-8")
+            self.assertIn("CITATION: title/manifest mismatch", check(root))
+
+    def test_release_unsupported_spdx_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            path = root / "config/component.json"
+            c = json.loads(path.read_text(encoding="utf-8"))
+            c["license_spdx"] = "UNKNOWN-LICENSE"
+            path.write_text(json.dumps(c), encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                self.assertIn("LICENSE: unsupported SPDX identifier; manual review required",
+                              check(root, "release", evidence))
+
+    def test_release_state_mismatch_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            path = root / "PROJECT_STATE.yaml"
+            path.write_text(path.read_text(encoding="utf-8")
+                            .replace("release_status: ready", "release_status: released"),
+                            encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                self.assertIn("RELEASE STATUS: manifest/state mismatch",
+                              check(root, "release", evidence))
+
+    def test_release_evidence_schema_missing_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            obj = json.loads(evidence.read_text(encoding="utf-8"))
+            del obj["schema_version"]
+            evidence.write_text(json.dumps(obj), encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                self.assertIn("EVIDENCE: unsupported schema_version",
+                              check(root, "release", evidence))
+
+    def test_release_report_tamper_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            checksum = hashlib.sha256(b"synthetic package fixture").hexdigest()
+            evidence = self.release_fixture(root, checksum)
+            report_file = root / "outputs/test-report.json"
+            report_file.write_text(report_file.read_text(encoding="utf-8") + "\n",
+                                   encoding="utf-8")
+            with patch("validate_repository.git_revision", return_value=("a" * 40, True)):
+                self.assertIn("TEST REPORT: SHA256 mismatch or missing",
+                              check(root, "release", evidence))
 
 
 if __name__ == "__main__":

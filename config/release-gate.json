@@ -2,6 +2,7 @@
   "schema_version": 1,
   "tests_executed": false,
   "test_report_path": null,
+  "test_report_sha256": null,
   "tested_commit_sha": null,
   "license_reviewed": false,
   "privacy_reviewed": false,

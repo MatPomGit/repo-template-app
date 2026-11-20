@@ -45,7 +45,12 @@ REQUIRED = (
     "contracts/events.schema.json", "tests/test_contract.py",
     "scripts/validate_repository.py",
 )
-SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
+SEMVER = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)"
+    r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+)
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 UTC_RFC3339 = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)$")
@@ -267,8 +272,8 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
         errors.append("SCHEMA: manifest or state schema_version must be 1")
     if c.get("template_version") != state.get("template_version"):
         errors.append("TEMPLATE VERSION: manifest/state mismatch")
-    if c.get("template_version") != "1.0.0":
-        errors.append("TEMPLATE VERSION: expected 1.0.0")
+    if not isinstance(c.get("template_version"), str) or not SEMVER.fullmatch(c["template_version"]):
+        errors.append("TEMPLATE VERSION: invalid SemVer")
     if state.get("repository_type") != EXPECTED_KIND:
         errors.append("WRONG KIND: PROJECT_STATE.yaml:repository_type")
     if not SEMVER.fullmatch(str(c.get("version", ""))):
@@ -293,6 +298,10 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
         errors.append("AUTHOR: Mateusz Pomianek must remain in CITATION.cff")
     if citation.get("type") != "software":
         errors.append("CITATION: expected software type")
+    if citation.get("title") != c.get("display_name"):
+        errors.append("CITATION: title/manifest mismatch")
+    if citation.get("version") != c.get("version"):
+        errors.append("CITATION: version/manifest mismatch")
     if c.get("export_contract") != "contracts/events.schema.json":
         errors.append("CONTRACT: export_contract path mismatch")
     if not isinstance(c.get("source_paths"), list) or not c.get("source_paths"):
@@ -303,6 +312,8 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
     if phase == "release":
         gate = (load_json(Path(evidence), errors, "external release evidence")
                 if evidence is not None else template_gate)
+        if gate.get("schema_version") != 1:
+            errors.append("EVIDENCE: unsupported schema_version")
         for field in ("component_id", "display_name", "owner", "repository_url",
                       "license_spdx", "runtime"):
             value = c.get(field)
@@ -312,6 +323,8 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
             errors.append("NOT_RELEASED: component not ready")
         if state.get("release_status") not in {"ready", "released"}:
             errors.append("NOT_RELEASED: PROJECT_STATE not ready")
+        if state.get("release_status") != c.get("release_status"):
+            errors.append("RELEASE STATUS: manifest/state mismatch")
         if not isinstance(c.get("platforms"), list) or not c.get("platforms"):
             errors.append("PLATFORMS: none declared")
         if c.get("data_classification") in (None, "", "unassessed"):
@@ -335,7 +348,9 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
         declared_spdx = c.get("license_spdx")
         expected_headings = {"MIT": "MIT License", "Apache-2.0": "Apache License",
                              "BSD-3-Clause": "Redistribution and use"}
-        if declared_spdx in expected_headings and expected_headings[declared_spdx].lower() not in license_text.lower():
+        if declared_spdx not in expected_headings:
+            errors.append("LICENSE: unsupported SPDX identifier; manual review required")
+        elif expected_headings[declared_spdx].lower() not in license_text.lower():
             errors.append("LICENSE: SPDX declaration inconsistent with text")
 
         mandatory = (
@@ -363,6 +378,12 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
             errors.append("MISSING LOCAL TEST EVIDENCE")
         else:
             report = load_json(report_file, errors, "test report")
+            if report.get("schema_version") != 1:
+                errors.append("TEST REPORT: unsupported schema_version")
+            report_sha = gate.get("test_report_sha256")
+            if (not isinstance(report_sha, str) or not SHA256.fullmatch(report_sha)
+                    or hashlib.sha256(report_file.read_bytes()).hexdigest() != report_sha):
+                errors.append("TEST REPORT: SHA256 mismatch or missing")
             if report.get("tested_commit_sha") != tested_sha or report.get("status") != "passed":
                 errors.append("TEST REPORT: wrong SHA or non-passing result")
             checks = report.get("checks")
