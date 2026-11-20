@@ -6,10 +6,14 @@ labels: []
 assignees: []
 ---
 
-## Cel
+## Cel, właściciel i oczekiwany rezultat (DoR)
 
 ## Aktualny stan i dowody
 
 ## Kryteria akceptacji
 
-## Testy i zagrożenia
+## Poziom ryzyka R0-R3, uprawnienia i skutki uboczne
+
+## Testy, recenzja i zagrożenia
+
+## Kryteria zakończenia (DoD), rollback i blokady

@@ -3,6 +3,7 @@ docs_dir: docs
 site_url: null
 nav:
   - Start: index.md
+  - Cykl pracy agentów: agent-workflow.md
   - Instalacja: installation.md
   - Kontrakty: contracts.md
   - Zgodność: compatibility.md
