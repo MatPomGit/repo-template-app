@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import tempfile
 import re
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -99,9 +101,68 @@ def initialise(root: Path, app_id: str, title: str, owner: str,
         mkdocs_path: yaml.safe_dump(mkdocs, sort_keys=False, allow_unicode=True),
         public_index: "".join(index_lines),
     }
-    for path, content in writes.items():
-        if path.read_text(encoding="utf-8") != content:
-            path.write_text(content, encoding="utf-8")
+    _commit_consistent_metadata(writes)
+
+
+def _stage_file(path: Path, data: bytes) -> Path:
+    """Write and fsync replacement bytes beside the destination for os.replace."""
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.app-stage-", dir=path.parent)
+    staged = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except BaseException:
+        staged.unlink(missing_ok=True)
+        raise
+    return staged
+
+
+def _commit_consistent_metadata(writes: dict[Path, str]) -> None:
+    """Stage all changes first; restore already-replaced files on normal I/O failures.
+
+    Each replacement is atomic on the same filesystem. Multi-file power-loss
+    atomicity cannot be guaranteed; rerun the initializer after host recovery.
+    """
+    originals: dict[Path, bytes] = {}
+    staged: dict[Path, Path] = {}
+    try:
+        for path, content in writes.items():
+            if path.is_symlink() or not path.is_file():
+                raise ValueError("initializer target must be a regular file: " + str(path))
+            old = path.read_bytes()
+            new = content.encode("utf-8")
+            if old != new:
+                originals[path] = old
+                staged[path] = _stage_file(path, new)
+
+        applied: list[Path] = []
+        try:
+            for path, temporary in staged.items():
+                os.replace(temporary, path)
+                applied.append(path)
+        except OSError as exc:
+            failures: list[str] = []
+            for path in reversed(applied):
+                temporary = None
+                try:
+                    temporary = _stage_file(path, originals[path])
+                    os.replace(temporary, path)
+                except OSError as rollback_exc:
+                    failures.append(f"{path}: {rollback_exc}")
+                finally:
+                    if temporary is not None:
+                        temporary.unlink(missing_ok=True)
+            if failures:
+                raise OSError(
+                    "initializer failed; MANUAL RECOVERY REQUIRED for: "
+                    + "; ".join(failures)
+                ) from exc
+            raise OSError("initializer failed; previous metadata restored") from exc
+    finally:
+        for temporary in staged.values():
+            temporary.unlink(missing_ok=True)
 
 
 def main() -> int:

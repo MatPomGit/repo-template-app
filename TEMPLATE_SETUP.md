@@ -21,3 +21,7 @@ Mateusz Pomianek jest obowiązkowym autorem oprogramowania w repozytoriach utwor
 ## GitHub Actions i środowisko testowe
 
 W repozytoriach publicznych dopuszczone są GitHub-hosted runners do odizolowanych, bezpiecznych testów na PR i push. Nie wymagaj lokalnej maszyny dla zwykłej walidacji. Przestrzegaj limitów, minimalnych uprawnień i zakazu niezatwierdzonych wydatków. Dla prywatnych repozytoriów wybór runnera wymaga osobnego sprawdzenia poufności i kosztów. Niezaufany kod nie może mieć dostępu do sekretów ani uprzywilejowanych zasobów. Aktualny stan zabezpieczeń i pozostające ryzyka: [audyt](reviews/2026-11-19-template-audit.md).
+
+## Procedury publikacji i wydania
+
+Dla **każdej** aplikacji potomnej używaj [wytycznych GitHub Pages](docs/pages.md) (osobny katalog `pages/`, allowlisty źródła i renderu, dostępność, prywatność oraz niezależne zatwierdzenie) i [procedury release](docs/releases.md) (SemVer, macierz platform, testy exact SHA, pochodzenie artefaktu, osobna autoryzacja i rollback). Bramka Pages **nie jest** bramką wydania aplikacji. Brak wymuszonego CI/review w ustawieniach `main` oznacza blokadę integracji do czasu naprawy zasad repozytorium.

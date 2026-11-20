@@ -1,19 +1,46 @@
-# Polityka publikacji GitHub Pages
+# GitHub Pages dla aplikacji `app-*`
 
-Strona przeznaczona dla odwiedzających jest **oddzielona od repozytorium**. Źródłem treści jest wyłącznie `pages/`, a dokumentacja techniczna pozostaje w `docs/`. Nie publikuj `AGENTS.md`, `.github/`, dokumentacji operacyjnej, notatek, ADR ani całego katalogu repozytorium.
+**Status szablonu:** `scaffold`, bez konfiguracji produkcyjnej witryny. Strona publiczna jest wizytówką i dokumentacją użytkową aplikacji, **nie interfejsem wewnętrznym repozytorium** ani miejscem przechowywania danych pomiarowych. Niniejsze wytyczne dotyczą aplikacji desktop, web, Android, Unity i aplikacji współpracujących z aparaturą.
 
-## Granice publikacji
+## 1. Granica publikacji
 
-Konfiguracja `mkdocs.yml` musi wskazywać `docs_dir: pages` oraz `site_dir: site`. **Samo `mkdocs.yml` nie zabezpiecza ustawień publikacji w GitHub. Zabroniony jest tryb Pages „Deploy from a branch” z `main:/docs` lub z root repozytorium.** Dopuszczalna jest dopiero osobno zatwierdzona publikacja wygenerowanego katalogu `site/` przez bezpieczny GitHub Actions artifact albo dedykowaną gałąź `gh-pages`, zawierającą wyłącznie zatwierdzone pliki publiczne. Publikacja nadal nie może uruchamiać się automatycznie. Każdy zasób `pages/` musi zostać jawnie wymieniony w [public_files](../config/pages-policy.json). Bez zatwierdzenia tej listy nie dodawaj nowych stron, obrazów ani skryptów. Nie używaj symlinków, automatycznego kopiowania z `docs/`, pluginów z dostępem do pozostałych plików repozytorium ani publikacji wszystkich plików projektu.
+- Strony źródłowe umieszczaj **wyłącznie w `pages/`**; dokumentacja techniczna, polityki agentów, ADR, logi, konfiguracja i kod pozostają poza witryną w `docs/` i innych katalogach repozytorium.
+- W `mkdocs.yml` wymagane są `docs_dir: pages` i `site_dir: site`. `config/pages-policy.json` określa jawnie dopuszczone pliki źródłowe i zweryfikowane zasoby motywu. Aktualizację listy uzasadnij przeglądem diff.
+- Nie używaj w ustawieniach GitHub Pages trybu „Deploy from a branch” wskazującego `main`, root ani `/docs`. Preferuj oddzielnie zatwierdzony workflow publikujący **wyłącznie zbudowany katalog `site/`**, z minimalnymi uprawnieniami i kontrolowanym środowiskiem. Alternatywna gałąź `gh-pages` może zawierać wyłącznie zatwierdzone pliki wynikowe.
+- Repozytorium szablonu **nie zawiera workflow publikacji**. Wynik testów, merge PR ani przygotowanie zawartości `pages/` nie uruchamiają deploymentu. Włączanie Pages i publikacja są osobnymi czynnościami R3 wymagającymi zgody właściciela.
 
-## Zasady języka
+## 2. Zawartość i nawigacja
 
-Na stronie **nigdy** nie umieszczaj instrukcji skierowanych do agenta AI, promptów systemowych, uwag edytorskich i redakcyjnych, `TODO`, `REPLACE`, poleceń dla autora, planów zmian ani informacji o tym, jak pomagać w prowadzeniu repozytorium. Nie twórz publicznego przewodnika `CONTRIBUTING` ani zachęt do PR. Każdy opis ma być samodzielny, neutralny i zrozumiały dla czytelnika spoza projektu.
+Publiczna strona ma odpowiedzieć na pytania: **czym jest aplikacja, co robi, dla kogo, jakie ma ograniczenia, jak ją bezpiecznie uzyskać i skąd pochodzą aktualne informacje**. Krótki zakres zalecanych podstron, dodawanych *tylko gdy istnieje treść*:
 
-Nie publikuj sekretów, danych uczestników i studentów, prywatnych logów, adresów hostów ani niejawnych informacji o metodologii i działalności agentów. Linki, obrazy i metadane obrazów traktuj tak samo jak treść.
+| Sekcja | Zawartość użytkowa |
+| --- | --- |
+| Start | Przeznaczenie, główne funkcje, platforma, reprezentatywny zrzut interfejsu |
+| Funkcje | Istniejące możliwości; wyraźne rozróżnienie demonstracji i funkcji zweryfikowanych |
+| Instalacja | Wymagania, wersja, obsługiwane systemy, link do rzeczywistego wydania i sum kontrolnych |
+| Obsługa | Krótka instrukcja, format eksportu, znane ograniczenia kompatybilności |
+| Prywatność | Rzeczywiste operacje na danych, sieć, przechowywanie, zgody, kontakt bezpieczeństwa |
+| Wydania | Changelog użytkowy, data i wersja, odnośnik do zatwierdzonego GitHub Release |
 
-## Szczególnie dla repozytoriów prywatnych
+Dla desktop/Android pokaż wymagania OS, instalację i uprawnienia. Dla web opisz wymagania przeglądarki i działanie sieciowe. Dla Unity/XR rozdziel kompatybilność wersji silnika i sprzętu. Dla aplikacji pomiarowej podaj obsługiwane urządzenia, firmware/SDK, wymaganą kalibrację i status **rzeczywistej** weryfikacji. Nie kopiuj do strony prywatnych identyfikatorów urządzeń, danych uczestników ani operacyjnych instrukcji dla agentów.
 
-**Prywatne repozytorium nie oznacza prywatnej witryny GitHub Pages.** Przed włączeniem Pages sprawdź rzeczywiste ustawienia widoczności witryny, plan i zasady organizacji, domenę, uprawnienia wykonawcy oraz wszystkie wygenerowane pliki. Jeśli wymagana prywatność nie jest zapewniona, nie publikuj.
+Pisz po polsku lub w jawnie utrzymywanych wersjach językowych. Nazwy zakładek odpowiadają nagłówkom i treściom podstron. Nie publikuj pustych sekcji, tekstów „do uzupełnienia”, notatek redakcyjnych, komunikatów dla właściciela, wytycznych do zarządzania repozytorium, promptów ani instrukcji dla AI. **Nie twórz publicznej strony CONTRIBUTING.**
 
-Przed publikacją uruchom `python scripts/validate_pages.py`, `python -m mkdocs build --strict` i `python scripts/validate_pages.py --site-dir site`. Ostatnie polecenie sprawdza finalne strony HTML i zasoby wyjściowe, bez publikowania ich. Jest również wykonywane w CI. Po buildzie przejrzyj wyrenderowany HTML i metadane zasobów, w tym pliki generowane przez motyw MkDocs. Automatyczny filtr wykrywa część niedozwolonych instrukcji i ścieżek, lecz nie gwarantuje kompletnego przeglądu poufności. **Każdą publikację** zatwierdza właściciel po niezależnym przeglądzie zawartości, wygenerowanego HTML i zasobów na aktualnym SHA. Nie uruchamiaj automatycznej publikacji na każdym merge. Sam katalog `pages/` niczego nie publikuje.
+## 3. Projekt interfejsu i dostępność
+
+Witryna powinna być responsywna, czytelna na telefonie i w trybie ciemnym, jeśli motyw go obsługuje. Stosuj poprawną hierarchię nagłówków, kontrast i obsługę klawiatury zgodne z WCAG 2.2 AA jako cel weryfikacji; tekst alternatywny dla obrazów i podpisy dla materiałów demonstracyjnych. Nie używaj automatycznie odtwarzanych mediów, agresywnych animacji ani sztucznych deklaracji certyfikacji. Testuj linki, kolejność tabulacji, skalowanie tekstu i szerokość tabel. Nie dodawaj skryptów analitycznych, zewnętrznych fontów/CDN ani trackerów bez uprzedniej oceny prywatności i zgody.
+
+Obrazuj aplikację rzeczywistymi zrzutami, fotografiami pozbawionymi metadanych lokalizacji i identyfikatorów, albo czytelnie oznaczonymi ilustracjami poglądowymi. Dane demonstracyjne powinny być syntetyczne. Przed zatwierdzeniem sprawdź EXIF/XMP/IPTC, miniatury, komentarze, podpisy, osadzone pliki i zasoby SVG; **automatyczny filtr nie zastępuje przeglądu multimediów**. Obrazy i skrypty muszą znaleźć się w zatwierdzonej liście plików, a kod JS/CSS przejść osobny audyt.
+
+## 4. Kontrola bezpieczeństwa przed każdą publikacją
+
+1. Ustal exact SHA źródeł, właściciela decyzji, docelową widoczność strony, domenę, konfigurację ustawień Pages i platformę docelową. Prywatność repozytorium **nie gwarantuje prywatności witryny**.
+2. Uruchom `python scripts/validate_pages.py`, `python -m mkdocs build --strict` i `python scripts/validate_pages.py --site-dir site`. Pierwsza kontrola obejmuje źródła, a druga także HTML i wygenerowane pliki. Budowanie nie publikuje strony.
+3. Zweryfikuj listę **wszystkich** plików w `site/`; sprawdź dozwolone skrypty motywu i brak niezatwierdzonych inline scripts, ścieżek wewnętrznych, sekretów, metadanych zdjęć i notatek skierowanych do agenta. Sprawdź końcowy render oraz linki z poziomu przeglądarki.
+4. Wymagaj aktualnego CI na exact SHA oraz niezależnego przeglądu publicznej zawartości. Zatwierdzenie i deployment muszą być udokumentowane odrębnie. Po wdrożeniu sprawdź **rzeczywistą** publiczną stronę i plan wycofania.
+
+**Granica zaufania:** kontrola syntaktyczna i regex wykrywają jedynie znane wzorce. Każdy nowy motyw, plugin, zależność MkDocs, obraz, zasób JS lub zmiana konfiguracji publikacji wymaga ponownej analizy. Nigdy nie traktuj wyniku „PASS: pages” jako automatycznej zgody na upublicznienie.
+
+## 5. Aktualizacje i wycofanie
+
+Zmiany treści utrzymuj wraz z wersją aplikacji i publicznym changelogiem, ale **nie łącz automatycznie release aplikacji z publikacją Pages**. W razie wykrycia wycieku wyłącz publiczne źródło, ustal zawartość i SHA, przywróć sprawdzony build lub wycofaj witrynę; zachowaj minimalny bezpieczny zapis incydentu zgodnie z `docs/security/incident-response.md`. Usunięcie z bieżącej strony nie gwarantuje usunięcia kopii w pamięci podręcznej lub archiwach.
