@@ -364,7 +364,7 @@ class ContractTests(unittest.TestCase):
             root = self.fixture(Path(tmp))
             before = (root / "config/component.json").read_bytes()
             with self.assertRaisesRegex(ValueError, "single-line"):
-                initialise(root, "app-fixture", "Title\\nInjected", "Mateusz Pomianek",
+                initialise(root, "app-fixture", "Title\nInjected", "Mateusz Pomianek",
                            "https://github.com/MatPomGit/app-fixture", "desktop", "Python 3.12")
             self.assertEqual(before, (root / "config/component.json").read_bytes())
 
