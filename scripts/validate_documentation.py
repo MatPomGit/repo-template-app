@@ -59,7 +59,7 @@ def check_documentation(root: Path = ROOT) -> list[str]:
             continue
         for file in matched:
             rel = file.relative_to(root).as_posix()
-            if rel not in selected:
+            if rel not in exact:
                 selected[rel] = min(limit, selected.get(rel, limit))
 
     for rel, limit in sorted(selected.items()):
