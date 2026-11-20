@@ -269,6 +269,25 @@ class PagesPolicyTests(unittest.TestCase):
             self.assertIn("PAGES CONFIG: reviewed local-only theme required",
                           check_pages(root))
 
+    def test_built_site_accepts_builtin_search_form_without_attributes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            (root / "site/index.html").write_text(
+                '<form><input type="search" id="mkdocs-search-query"></form>',
+                encoding="utf-8")
+            self.assertEqual([], check_built_site(root))
+
+    def test_built_site_rejects_nonlocal_form(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            (root / "site").mkdir()
+            (root / "site/index.html").write_text(
+                '<form action="https://elsewhere.example/" method="post"></form>',
+                encoding="utf-8")
+            self.assertIn("PAGES BUILD ACTIVE TAG: index.html",
+                          check_built_site(root))
+
     def test_built_site_minimal_index_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.fixture(Path(tmp))
