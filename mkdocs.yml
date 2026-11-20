@@ -1,6 +1,9 @@
 # GitHub Pages: only explicitly curated public content, never docs/.
 site_name: "Aplikacja"
 docs_dir: pages
+theme:
+  name: mkdocs
+  highlightjs: false  # Default MkDocs theme otherwise pulls remote CDN JavaScript.
 site_dir: site
 site_url: null
 nav:

@@ -251,6 +251,54 @@ class ContractTests(unittest.TestCase):
             self.assertTrue((root / "pages/index.md").read_text(
                 encoding="utf-8").startswith("# App E4 Fixture"))
 
+    def test_initializer_rollback_after_partial_replace_failure(self):
+        """A failed middle replacement must not leave mixed component metadata."""
+        import os
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            paths = (
+                "config/component.json", "PROJECT_STATE.yaml", "CITATION.cff",
+                "README.md", "mkdocs.yml", "pages/index.md",
+            )
+            before = {name: (root / name).read_bytes() for name in paths}
+            args = (root, "app-e4-rollback", "App Rollback", "Mateusz Pomianek",
+                    "https://github.com/MatPomGit/app-e4-rollback",
+                    "desktop", "Python 3.12")
+            real_replace = os.replace
+            calls = 0
+
+            def fail_third_replace(src, dest):
+                nonlocal calls
+                calls += 1
+                if calls == 3:
+                    raise OSError("injected replacement failure")
+                return real_replace(src, dest)
+
+            with patch("init_app.os.replace", side_effect=fail_third_replace):
+                with self.assertRaisesRegex(OSError, "previous metadata restored"):
+                    initialise(*args)
+            self.assertEqual(before, {
+                name: (root / name).read_bytes() for name in paths
+            })
+            self.assertFalse(list(root.rglob("*.app-stage-*")))
+            initialise(*args)
+            self.assertEqual([], check(root, "scaffold"))
+
+    def test_initializer_does_not_change_files_when_staging_fails(self):
+        from init_app import initialise
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.fixture(Path(tmp))
+            before = (root / "config/component.json").read_bytes()
+            args = (root, "app-e4-staging", "App Stage", "Mateusz Pomianek",
+                    "https://github.com/MatPomGit/app-e4-staging",
+                    "desktop", "Python 3.12")
+            with patch("init_app.os.fsync", side_effect=OSError("staging failed")):
+                with self.assertRaisesRegex(OSError, "staging failed"):
+                    initialise(*args)
+            self.assertEqual(before, (root / "config/component.json").read_bytes())
+            self.assertFalse(list(root.rglob("*.app-stage-*")))
+
     def test_initializer_does_not_overwrite_existing_component(self):
         from init_app import initialise
         with tempfile.TemporaryDirectory() as tmp:
