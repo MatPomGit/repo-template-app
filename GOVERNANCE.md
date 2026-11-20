@@ -6,7 +6,7 @@
 
 Właściciel repozytorium odpowiada za uprawnienia, licencję, decyzję o wydaniu oraz publikację. Autorzy zmian odpowiadają za implementację, regresję i rzetelne raportowanie. Recenzenci oceniają finalny diff i dowody, nie nadają sobie sami uprawnień. Udział w projekcie ani wzmianka w `CITATION.cff` nie tworzy prawa administracyjnego.
 
-Zwykłe zmiany przechodzą przez Issue, gałąź roboczą, PR i kontrole wskazane w [CONTRIBUTING.md](CONTRIBUTING.md). Zmiany API, zależności, bezpieczeństwa oraz publikacja wymagają dodatkowych bramek określonych w [AGENTS.md](AGENTS.md) i [SECURITY.md](SECURITY.md). Zasada minimalnych uprawnień obowiązuje także agentów.
+Zwykłe zmiany przechodzą przez Issue, gałąź roboczą, PR i kontrole wskazane w [AGENTS.md](AGENTS.md). Zmiany API, zależności, bezpieczeństwa oraz publikacja wymagają dodatkowych bramek określonych w [AGENTS.md](AGENTS.md) i [SECURITY.md](SECURITY.md). Zasada minimalnych uprawnień obowiązuje także agentów.
 
 ## Zmiany architektury i decyzje
 

@@ -14,4 +14,4 @@ Zgłoszenia dotyczące zachowania przekazuje się prywatnym kanałem właścicie
 
 Osoba odpowiedzialna ocenia zgłoszenie poufnie, przyznaje dostęp wyłącznie niezbędnym osobom, daje możliwość ustosunkowania się i stosuje proporcjonalne środki: ostrzeżenie, moderację, czasową blokadę albo trwałe wykluczenie z kanałów projektu. Naruszenia prawa zgłasza się właściwym instytucjom niezależnie od polityki repozytorium. Nie obiecujemy czasu odpowiedzi, dopóki nie istnieje rzeczywista obsługa zgłoszeń.
 
-Zasady nie ograniczają rzetelnego raportowania luk bezpieczeństwa. Szczegóły zgłoszeń technicznych: [SECURITY.md](SECURITY.md). Wkład techniczny: [CONTRIBUTING.md](CONTRIBUTING.md).
+Zasady nie ograniczają rzetelnego raportowania luk bezpieczeństwa. Szczegóły zgłoszeń technicznych: [SECURITY.md](SECURITY.md).

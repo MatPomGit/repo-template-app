@@ -33,5 +33,7 @@ jobs:
         run: python -m pip check
       - name: Validate structure, JSON Schema, metadata, authorship and secrets
         run: python scripts/validate_repository.py --phase scaffold
+      - name: Validate public Pages content and boundary
+        run: python scripts/validate_pages.py
       - name: Run unit, smoke and negative tests
         run: python -m unittest discover -s tests -v

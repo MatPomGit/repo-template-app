@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 from validate_documentation import check_documentation
+from validate_pages import check_pages
 
 try:
     import yaml
@@ -34,7 +35,7 @@ EXPECTED_KIND = "app"
 REQUIRED = (
     "README.md", "AGENTS.md", "ARCHITECTURE.md", "PROJECT_STATE.yaml",
     "CODE_OF_CONDUCT.md", "GOVERNANCE.md", "SUPPORT.md",
-    "SECURITY.md", "CONTRIBUTING.md", "LICENSE", "CITATION.cff",
+    "SECURITY.md", "LICENSE", "CITATION.cff",
     "CHANGELOG.md", "TEMPLATE_SETUP.md", "mkdocs.yml", ".gitignore",
     ".gitattributes", ".github/ACTIONS_POLICY.md",
     ".github/PULL_REQUEST_TEMPLATE.md", ".github/ISSUE_TEMPLATE/work-item.md",
@@ -44,7 +45,9 @@ REQUIRED = (
     "profiles/sensor/AGENTS.md", "profiles/unity/AGENTS.md",
     "profiles/web/AGENTS.md",
     "config/component.json", "config/release-gate.json",
-    "config/documentation-policy.json", "docs/index.md",
+    "config/documentation-policy.json", "config/pages-policy.json",
+    "pages/index.md", "scripts/validate_pages.py", "tests/test_pages_policy.py",
+    "docs/index.md",
     "docs/documentation.md", "docs/architecture/README.md",
     "docs/architecture/components.md", "docs/architecture/data-flow.md",
     "docs/architecture/deployment.md", "docs/security/threat-model.md",
@@ -323,6 +326,7 @@ def check(root: Path = ROOT, phase: str = "scaffold", evidence: Path | None = No
         errors.append("SOURCES: non-empty source_paths required")
     validate_schema(root, schema, errors)
     errors.extend(check_documentation(root))
+    errors.extend(check_pages(root))
     errors.extend(scan_security(root))
 
     if phase == "release":

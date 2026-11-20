@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- 2026-11-20: wydzielono źródła GitHub Pages w `pages/` zamiast `docs/`, wprowadzono allowlistę i wykrywanie instrukcji agentowych oraz notatek redakcyjnych. Usunięto `CONTRIBUTING.md` i powiązane odsyłacze.
+
 - 2026-11-20: dodano strukturę architektury, Code of Conduct, governance i support, model zagrożeń, ADR bezpieczeństwa, runbook oraz politykę limitów znaków. Walidator dokumentacji z testami regresyjnymi jest częścią scaffold CI.
 
 - 2026-11-20: ujednolicono kontrakt agentów APP z zasadami Research Autopilot, HomeServer i PRz: R0-R3, DoR/DoD, exact-SHA, granice uprawnień, bezpieczne merge/release, współpraca agentów i pięć lokalnych profili; dodano testy spójności dokumentacji.

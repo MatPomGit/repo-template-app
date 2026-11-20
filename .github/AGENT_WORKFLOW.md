@@ -40,6 +40,8 @@ Recenzent ma ocenić finalny diff i ryzyka, wskazać SHA, faktyczne ustalenia i 
 
 ## D. Integracja, wydanie i wdrożenie
 
+GitHub Pages korzysta wyłącznie z jawnie zatwierdzonego `pages/`, nigdy z `docs/`. Weryfikuj listę `config/pages-policy.json`, brak notatek redakcyjnych, instrukcji dla agentów i prywatnych danych, uruchom `python scripts/validate_pages.py` oraz ręcznie sprawdź wynikowy HTML. Publikacja wymaga odrębnej zgody, szczególnie dla repozytorium prywatnego.
+
 1. Przed merge odśwież `main`, aktualny PR HEAD, checks, komentarze i status review; porównaj finalny diff. Uwzględnij kontrolę WIP, zakres zgody właściciela, ryzyko R0-R3 oraz rzeczywiste ograniczenia rulesetów. Nie używaj administracyjnego bypassu do obejścia kontroli.
 2. Scalenie wykonaj dopiero przy spełnieniu obowiązujących bramek i uprawnień. Zgoda na edycję kodu lub obecność autora w historii nie stanowią automatycznie autoryzacji wdrożenia hosta. Jeżeli narzędzie nie pozwala wykonać potrzebnej operacji, wskaż `UNAVAILABLE`, zamiast udawać, że się udała.
 3. Po scaleniu odczytaj docelowy commit `main`, sprawdź wynik CI po merge i potwierdź, że zmiana faktycznie znalazła się w kodzie. Nie utożsamiaj merge z publikacją pakietu, wdrożeniem na serwerze ani walidacją urządzenia.

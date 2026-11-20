@@ -65,6 +65,12 @@ Przed rozbudową aplikacji przeczytaj [standard dokumentacji](docs/documentation
 
 Limity są zapisane w [polityce](config/documentation-policy.json) i sprawdzane przez `python scripts/validate_documentation.py`, także w walidacji CI. **Nie zwiększaj limitu tylko po to, aby ukryć redundancję.** Przy pierwszej implementacji zmień deklaracje scaffold na rzeczywiste komponenty, kontrakty, przepływy, model zagrożeń i dowody. Nie zmyślaj uruchomienia, wsparcia ani gotowości bezpieczeństwa.
 
-## 8. Profile platformowe
+## 8. Zasady GitHub Pages
+
+**Nigdy nie publikuj `docs/` ani instrukcji agentowych jako strony.** Materiały dla odwiedzających umieszczaj wyłącznie w odrębnym `pages/`; dopuszczenie każdego pliku wymaga wpisu do `config/pages-policy.json`. Przed zmianą sprawdź [politykę Pages](docs/pages.md) i uruchom `python scripts/validate_pages.py`.
+
+Na stronie nie wolno umieszczać poleceń dla agentów, promptów, uwag redakcyjnych, instrukcji dla autora ani wskazówek uczestnictwa w rozwoju repozytorium. **Prywatne repozytorium nie gwarantuje prywatności GitHub Pages.** Publikacja wymaga osobnego przeglądu treści i plików wyjściowych oraz potwierdzonej zgody. Nie ustawiaj automatycznej publikacji po merge.
+
+## 9. Profile platformowe
 
 Przeczytaj lokalne `AGENTS.md` **tylko dla profili rzeczywiście objętych zadaniem**, wraz z ich `README.md`: [Android](profiles/android/AGENTS.md), [Desktop](profiles/desktop/AGENTS.md), [Sensor](profiles/sensor/AGENTS.md), [Unity](profiles/unity/AGENTS.md), [Web](profiles/web/AGENTS.md). Profil jest wskazówką implementacyjną, a nie certyfikatem urządzenia ani poleceniem instalacji pięciu SDK.

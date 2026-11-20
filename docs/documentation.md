@@ -14,6 +14,7 @@
 - [GOVERNANCE](../GOVERNANCE.md): role, proces podejmowania decyzji, odpowiedzialność.
 - [SUPPORT](../SUPPORT.md): sposób uzyskiwania pomocy i zgłaszania awarii.
 - [Runbook](operations/runbook.md): instalacja operacyjna, diagnostyka, rollback, bez sekretów.
+- [GitHub Pages](pages.md): odrębne `pages/`, tylko materiały publiczne, bez instrukcji agentowych i uwag redakcyjnych.
 
 ## Budżet znaków
 
@@ -23,16 +24,19 @@ Maszynowym źródłem limitów jest [config/documentation-policy.json](../config
 | --- | ---: |
 | Główne `AGENTS.md`, `README.md`, `ARCHITECTURE.md` | 12 000 |
 | `SECURITY.md`, główna procedura agentów | 10 000 |
-| `CONTRIBUTING.md`, rozdziały architektury i model zagrożeń | 8 000–8 500 |
+| Rozdziały architektury i model zagrożeń | 8 500 |
 | `CODE_OF_CONDUCT.md`, `SUPPORT.md`, pojedynczy ADR (także nowy) | 6 000–6 500 |
 | Lokalne `profiles/*/AGENTS.md` | 3 000 |
 | Pozostałe dokumenty `docs/` bez własnego limitu | 10 000 |
+| Strony `pages/**/*.md` | 6 000 |
 
 Sprawdzaj limity poleceniem `python scripts/validate_documentation.py`. Ta sama kontrola jest częścią walidatora repozytorium i testów CI. Przekroczenie limitu to **FAIL** z nazwą pliku i liczbą znaków.
 
 ## Jak rozwijać dokumenty
 
 **Scaffold:** zachowaj informację `NOT_DEFINED`, `NOT_ASSESSED` lub `NOT_DEPLOYED`. Nie przedstawiaj pytań kontrolnych jako wykonanych testów.
+
+**Publiczna witryna:** redaguj wyłącznie w `pages/`, nigdy w `docs/`. Zapisz każdy zasób na allowliście, usuń instrukcje wewnętrzne, przejrzyj render i widoczność strony. [Polityka Pages](pages.md).
 
 **Pierwszy działający moduł:** uaktualnij README, diagram i tabelę faktycznych modułów, ich API i zależności, obsługiwane platformy oraz testy. Usuń nieaktualne fragmenty szablonowe z zakresu wdrożonej funkcji.
 
