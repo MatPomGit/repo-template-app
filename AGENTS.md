@@ -19,7 +19,7 @@ W trybie autonomicznym priorytetami są: bezpieczeństwo i utrata danych, napraw
 
 Jeśli dostępny i uprawniony, **Research Autopilot** jest jedynym trwałym kontrolerem planowania, kolejki, lease, evidencji i cyklu PR. Nie twórz drugiego schedulera, kolejki, model-routera, ledgeru ani ścieżki scalania. Bez dostępu do kontrolera użyj istniejących Issues i PR jako trwałego zapisu, bez udawania rezerwacji. Respektuj pracę innych agentów i nie usuwaj cudzych worktree.
 
-Obowiązuje limit z aktywnej polityki Autopilota: maksymalnie **4 otwarte PR i 4 aktywne gałęzie robocze na repozytorium oraz 5 otwartych PR w zarządzanym portfelu**; licz również drafty i zadania zablokowane. Lokalny, ostrzejszy limit ma pierwszeństwo. Nie przekraczaj limitu bez odrębnego upoważnienia; najpierw kończ istniejące zadania.
+Dla danego repozytorium obowiązuje limit **4 otwartych PR i 4 aktywnych gałęzi roboczych**, łącznie z draftami i zadaniami zablokowanymi, chyba że właściciel zatwierdzi wyjątek. Limit **5 PR w zarządzanym portfelu nie dotyczy repozytoriów `app-*` ani `lib-*`**. Nie znosi to innych ograniczeń uprawnień, CI, kosztów, recenzji, ani potrzeby kończenia rozpoczętych prac. W sprawach nieobjętych tym wyjątkiem stosuj właściwą politykę Autopilota.
 
 ## 3. Klasyfikacja ryzyka i bramki
 
